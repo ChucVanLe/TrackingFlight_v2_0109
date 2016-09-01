@@ -5001,6 +5001,11 @@ namespace TrackingFlight_v2_0109
         //---thesis-------------------------------------------------------------------
         string sDisplayTimeNotFormat, sStartTime, sStopTime;//save value of time don't format
 
+        /// <summary>
+        /// increase speed when program is offline mode
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bt_speed_inc_click(object sender, RoutedEventArgs e)
         {
             limitSpeed += 5;
@@ -5017,6 +5022,11 @@ namespace TrackingFlight_v2_0109
                 limitSpeed -= 5;
         }
 
+        /// <summary>
+        /// open file .txt simulation
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bt_open_file_click(object sender, RoutedEventArgs e)
         {
             myMap.Children.Clear();
@@ -5034,17 +5044,33 @@ namespace TrackingFlight_v2_0109
             bt_Speed.IsEnabled = true;
         }
 
+        /// <summary>
+        /// when this button is pressed, map will be full screen
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bt_one_sceen_click(object sender, RoutedEventArgs e)
         {
             Background_Sensor(00, -80);
         }
 
+        /// <summary>
+        /// two screen, 1 screen for sensor, 1 screen for map
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bt_two_sceen_click(object sender, RoutedEventArgs e)
         {
             myMap.MapElements.Remove(polylineHereToDentination);//delete polyline old before reload
             DisplaySensor_Setup();
         }
 
+        /// <summary>
+        /// get position at point is tapped with mouse
+        /// this position will be dentination of flight
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bt_get_position_click(object sender, RoutedEventArgs e)
         {
             if (tblock_LatAndLon.Text != "")
@@ -5057,6 +5083,11 @@ namespace TrackingFlight_v2_0109
             }
         }
 
+        /// <summary>
+        /// when this button is pressed, maps will be show position of flight and dentination
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bt_zoom_nomal_click(object sender, RoutedEventArgs e)
         {
             var posToZoomAll = new List<BasicGeoposition>();
@@ -5065,17 +5096,32 @@ namespace TrackingFlight_v2_0109
             posToZoomAll.Add(new BasicGeoposition() { Latitude = dLatDentination, Longitude = dLonDentination });
             SetMapPolyline(posToZoomAll);
         }
-
+        
+        /// <summary>
+        /// when this button is pressed, maps will show all of point which flight accross
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bt_autoZoom_on_click(object sender, RoutedEventArgs e)
         {
             bAutoZoom = true;
         }
 
+        /// <summary>
+        /// turn off auto zoom mode
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bt_autoZoom_off_click(object sender, RoutedEventArgs e)
         {
             bAutoZoom = false;
         }
 
+        /// <summary>
+        /// connect with COM which is selected in listbox
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bt_device_connect_click(object sender, RoutedEventArgs e)
         {
             Connect_To_Com();
@@ -5089,6 +5135,11 @@ namespace TrackingFlight_v2_0109
             bt_Speed.IsEnabled = false;
         }
 
+        /// <summary>
+        /// disconnect with COM
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bt_device_disconnect_click(object sender, RoutedEventArgs e)
         {
             DisConnect_To_Com();
