@@ -5029,6 +5029,7 @@ namespace TrackingFlight_v2_0109
         /// <param name="e"></param>
         private void bt_open_file_click(object sender, RoutedEventArgs e)
         {
+            ConnectDevices.Opacity = 0;// don't dispay ConnectDevices
             myMap.Children.Clear();
             myMap.MapElements.Clear();
             positions.Clear();
@@ -5083,6 +5084,11 @@ namespace TrackingFlight_v2_0109
             }
         }
 
+        private void bt_list_com_click(object sender, RoutedEventArgs e)
+        {
+            ConnectDevices.Opacity = 1;//dispay ConnectDevices
+        }
+
         /// <summary>
         /// when this button is pressed, maps will be show position of flight and dentination
         /// </summary>
@@ -5125,6 +5131,7 @@ namespace TrackingFlight_v2_0109
         private void bt_device_connect_click(object sender, RoutedEventArgs e)
         {
             Connect_To_Com();
+            ConnectDevices.Opacity = 0;// don't dispay ConnectDevices
             //remove tblock_Start_Timer, tblock_End_Timer, slider_AdjTime when connect Com
             BackgroundDisplay.Children.Remove(tblock_Start_Timer);
             BackgroundDisplay.Children.Remove(tblock_End_Timer);
@@ -5143,6 +5150,7 @@ namespace TrackingFlight_v2_0109
         private void bt_device_disconnect_click(object sender, RoutedEventArgs e)
         {
             DisConnect_To_Com();
+            ConnectDevices.Opacity = 1;//dispay ConnectDevices
         }
 
         private void slider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
