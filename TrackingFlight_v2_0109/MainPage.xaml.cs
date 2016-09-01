@@ -2813,6 +2813,7 @@ namespace TrackingFlight_v2_0109
             //ghi chữ Heading (degree) ở phía dưới
             DrawString("Heading", 24, new SolidColorBrush(Colors.Purple), dComPass_mid_X - dComPass_R + 65,
                 dComPass_mid_Y + dComPass_R + 5, 1);
+
             DrawString("(degrees)", 24, new SolidColorBrush(Colors.Purple), dComPass_mid_X - dComPass_R + 60,
                 dComPass_mid_Y + dComPass_R + 5 + 30, 1);
         }
