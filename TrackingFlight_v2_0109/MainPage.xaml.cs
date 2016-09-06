@@ -99,10 +99,10 @@ namespace TrackingFlight_v2_0109
     /// </summary>
     public sealed partial class MainPage : Page
     {
-            //global variable
+        //global variable
 
-            double dDistanToTaget;  //Save distan from flight to dentination
-            double dLatGol, dLonGol;      //2 biến này là biến toàn cục của Lat and Lontitude
+        double dDistanToTaget;  //Save distan from flight to dentination
+        double dLatGol, dLonGol;      //2 biến này là biến toàn cục của Lat and Lontitude
         //Geopoint for Seattle San Bay Tan Son Nhat: 10.818442, 106.658824
         public double dLatDentination = 10.818442, dLonDentination = 106.658824;
         Int16 i16EditPosition = -60;//để canh chỉnh màn hình các sensor chỉ hiện 1/3 màn hình
@@ -5102,7 +5102,7 @@ namespace TrackingFlight_v2_0109
             posToZoomAll.Add(new BasicGeoposition() { Latitude = dLatDentination, Longitude = dLonDentination });
             SetMapPolyline(posToZoomAll);
         }
-        
+
         /// <summary>
         /// when this button is pressed, maps will show all of point which flight accross
         /// </summary>
