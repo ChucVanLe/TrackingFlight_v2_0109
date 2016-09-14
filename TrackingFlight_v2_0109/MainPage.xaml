@@ -118,8 +118,8 @@
                     <MenuFlyoutItem x:Name="bt_List_Com" Click="bt_list_com_click" Text="List COM">
                     </MenuFlyoutItem>
                     <MenuFlyoutSubItem Text="Device">
-                        <MenuFlyoutItem Text="Connect" Click="bt_device_connect_click"/>
-                        <MenuFlyoutItem Text="DisConnect" Click="bt_device_disconnect_click"/>
+                        <MenuFlyoutItem x:Name="bt_Connect" Text="Connect" Click="bt_device_connect_click"/>
+                        <MenuFlyoutItem x:Name="bt_DisConnect" IsEnabled="False" Text="DisConnect" Click="bt_device_disconnect_click"/>
                     </MenuFlyoutSubItem>
                 </MenuFlyout>
             </Button.Flyout>

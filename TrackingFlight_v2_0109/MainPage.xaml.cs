@@ -233,7 +233,7 @@ namespace TrackingFlight_v2_0109
                 await storageFolder.CreateFileAsync("dataReceive.txt",
                     Windows.Storage.CreationCollisionOption.ReplaceExisting);
             //write header
-            SaveTotxt("Data from sensor Ublox GPS + compass, baud rate: 115200" + '\n');
+            SaveTotxt("Data from sensor Ublox GPS + compass, baud rate: 57600" + '\n');
             SaveTotxt("Test data: 2/3/2016, Location: ... " + '\n');
         }
         //***************End of class set up********************************************
@@ -470,7 +470,7 @@ namespace TrackingFlight_v2_0109
                 // Configure serial settings
                 serialPort.WriteTimeout = TimeSpan.FromMilliseconds(1);
                 serialPort.ReadTimeout = TimeSpan.FromMilliseconds(1);
-                serialPort.BaudRate = 115200;
+                serialPort.BaudRate = 57600;
                 serialPort.Parity = SerialParity.None;
                 serialPort.StopBits = SerialStopBitCount.One;
                 serialPort.DataBits = 8;
@@ -484,13 +484,14 @@ namespace TrackingFlight_v2_0109
                 // Enable 'WRITE' button to allow sending data
                 //sendTextButton.IsEnabled = true;
 
-                //comPortInput.Content = "DisConnect";
-                //btReadCOMorFile.IsEnabled = false;
+                bt_Connect.IsEnabled = false;
+                bt_DisConnect.IsEnabled = true;
                 Listen();
             }
             catch
             {
                 //status.Text = ex.Message;
+                bt_Connect.IsEnabled = true;
                 bt_List_Com.IsEnabled = true;
             }
         }
@@ -508,7 +509,8 @@ namespace TrackingFlight_v2_0109
                 ListAvailablePorts();
 
                 //comPortInput.Content = "Connect";
-                //btReadCOMorFile.IsEnabled = true;
+                bt_Connect.IsEnabled = true;
+                bt_DisConnect.IsEnabled = false;
                 bConnectOk = false;
             }
             catch
@@ -1426,7 +1428,6 @@ namespace TrackingFlight_v2_0109
             }
         }
         //******************************************************************************
-        int deletePonit = 0;//delete positions
         /// <summary>
         /// Process data full and draw data is optimize
         /// </summary>
@@ -1434,147 +1435,152 @@ namespace TrackingFlight_v2_0109
         {
             {
                 //Data.Temp = FindTextInStr(strDataFromSerialPort, "\r\n");
-                if (Data.Temp.IndexOf('$') != -1)
+                //if (Data.Temp.IndexOf('$') != -1)
+                try
+                {
+                    
                     //cắt bỏ ký tự '$'
                     Data.Temp = Data.Temp.Substring(Data.Temp.IndexOf('$') + 1, Data.Temp.Length - (Data.Temp.IndexOf('$') + 1));
-                else
-                    return;
-
-                //data acc
-                if ((Data.Temp[0] != 'G') && (Data.Temp.Length >= 18)) //Do có lúc chỉ có 1 hàng trắng
-                {
-                    //Mặc định không lưu dữ liệu không hiểu thị các giá trị ra textbox
-                    //-0011  0084 - 0040 - 0003  0012 - 0007 - 0143 - 0016  0976  2687  0175  2041  0849
-
-                    Data.DataAcc = Data.Temp;
-                    //Lấy Roll, mỗi giá trị góc dài 6 ký tự
-                    //Data của Anh Bình có xuất hiện chỗ trục trặt nôi chặn lỗi này
-                    //
-
-                    Data.Roll = Data.DataAcc.Substring(0, 6);
-                    Data.Pitch = Data.DataAcc.Substring(6, 6);
-                    Data.Yaw = Data.DataAcc.Substring(12, 6);
-
-                    //vẽ luôn
-                    if (bSetup)
+                    //data acc
+                    if ((Data.Temp[0] != 'G') && (Data.Temp.Length >= 18)) //Do có lúc chỉ có 1 hàng trắng
                     {
-                        //dùng các biến tạm để kiểm tra có convert được hay không
-                        double temp_Roll = 0, temp_Pitch = 0, temp_Raw = 0;
-                        try
-                        {
-                            temp_Roll = Convert.ToDouble(Data.Roll) / 10;
-                            temp_Pitch = Convert.ToDouble(Data.Pitch) / 10;
-                            temp_Raw = Convert.ToDouble(Data.Yaw) / 10;
+                        //Mặc định không lưu dữ liệu không hiểu thị các giá trị ra textbox
+                        //-0011  0084 - 0040 - 0003  0012 - 0007 - 0143 - 0016  0976  2687  0175  2041  0849
 
-                            //Vẽ sự thay đổi PitchAndRoll_Draw đã tối ưu ngày 3,4 /03/2016                       
-                            PitchAndRoll_Draw(temp_Roll, temp_Pitch, 350 + i16EditPosition * 11 / 6, 210, 140, 50);
-                            //optimite not user remove and add
-                            Comp_Rotate_OutAndAddValue(temp_Raw);
-                        }
-                        catch
-                        {
+                        Data.DataAcc = Data.Temp;
+                        //Lấy Roll, mỗi giá trị góc dài 6 ký tự
+                        //Data của Anh Bình có xuất hiện chỗ trục trặt nôi chặn lỗi này
+                        //
 
+                        Data.Roll = Data.DataAcc.Substring(0, 6);
+                        Data.Pitch = Data.DataAcc.Substring(6, 6);
+                        Data.Yaw = Data.DataAcc.Substring(12, 6);
+
+                        //vẽ luôn
+                        if (bSetup)
+                        {
+                            //dùng các biến tạm để kiểm tra có convert được hay không
+                            double temp_Roll = 0, temp_Pitch = 0, temp_Raw = 0;
+                            try
+                            {
+                                temp_Roll = Convert.ToDouble(Data.Roll) / 10;
+                                temp_Pitch = Convert.ToDouble(Data.Pitch) / 10;
+                                temp_Raw = Convert.ToDouble(Data.Yaw) / 10;
+
+                                //Vẽ sự thay đổi PitchAndRoll_Draw đã tối ưu ngày 3,4 /03/2016                       
+                                PitchAndRoll_Draw(temp_Roll, temp_Pitch, 350 + i16EditPosition * 11 / 6, 210, 140, 50);
+                                //optimite not user remove and add
+                                Comp_Rotate_OutAndAddValue(temp_Raw);
+                            }
+                            catch
+                            {
+
+                            }
                         }
                     }
-                }
 
-                if (-1 != Data.Temp.IndexOf("GPG"))
+                    if (-1 != Data.Temp.IndexOf("GPG"))
+                    {
+
+
+                        //cut bỏ Data đến dấu phẩy đầu tiên lấy sau dấu phẩy đầu tiên
+                        Data.Temp = Data.Temp.Substring(Data.Temp.IndexOf(',') + 1, Data.Temp.Length - (Data.Temp.IndexOf(',') + 1));
+                        //Data.Temp = "024004.900,1043.4006,N,10641.3309,E,1,4,2.67,7.8,M,2.5,M,,*67 ";
+                        ////tbOutputText.Text += "DataSauCut: " + Data.Temp + '\n';
+                        //tách lấy giờ, thời gian GPS chậm hơn thời gian thực 7h nên phải cộng 7
+                        //Nếu time >= 240000.00 thì phải trừ đi 240000.00
+                        double dTemp_Time_hour = 0, dTemp_Time;
+                        string temp_time = Data.Temp.Substring(0, Data.Temp.IndexOf(','));
+                        if (temp_time != "")
+                        {
+                            dTemp_Time_hour = Convert.ToDouble(temp_time.Substring(0, 2)) + 7;
+                            if (dTemp_Time_hour >= 24) dTemp_Time_hour -= 24;
+                            dTemp_Time = Convert.ToDouble(temp_time) + 70000.00;
+                            if (dTemp_Time >= 240000.00) dTemp_Time_hour -= 240000.00;
+                            Data.Time = dTemp_Time.ToString();
+                        }
+                        //show now time
+                        //format hour:min:sec
+
+                        //tblock_Current_Timer.Text = dTemp_Time_hour.ToString() + ':'+ temp_time.Substring(2, 2)
+                        //    + ':' + temp_time.Substring(4, 5);
+                        if (bConnectOk)//connect to Com
+                        {
+                            if (-1 != Data.Time.IndexOf('.'))//have '.' in Data.Time 82754.7
+                                tblock_Current_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 6) + ':'
+                                        + Data.Time.Substring(Data.Time.Length - 6, 2) + ':' + Data.Time.Substring(Data.Time.Length - 4, 4);
+                            else
+                                tblock_Current_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 4) + ':'
+                                        + Data.Time.Substring(Data.Time.Length - 4, 2) + ':' + Data.Time.Substring(Data.Time.Length - 2, 2);
+                        }
+
+                        //tblock_CurentTime.Text = "Now: " + Data.Time;
+                        //Ngày 17/12/2015 17h36 ok
+                        //tbOutputText.Text += "Time: " + Data.Time + '\n';
+                        //cut bỏ Data đến dấu phẩy đầu tiên lấy sau dấu phẩy đầu tiên
+                        Data.Temp = Data.Temp.Substring(Data.Temp.IndexOf(',') + 1, Data.Temp.Length - (Data.Temp.IndexOf(',') + 1));
+                        //Data.Temp = "1043.4006,N,10641.3309,E,1,4,2.67,7.8,M,2.5,M,,*67 ";
+                        ////tbOutputText.Text += "DataSauCut: " + Data.Temp + '\n';
+                        //tách lấy vĩ độ mặc định ở vĩ độ North
+                        Data.Latitude = Data.Temp.Substring(0, Data.Temp.IndexOf(','));
+                        //tbOutputText.Text += "Latitude: " + Data.Latitude + '\n';
+                        //cut bỏ Data đến dấu phẩy đầu tiên lấy sau dấu phẩy đầu tiên
+                        Data.Temp = Data.Temp.Substring(Data.Temp.IndexOf(',') + 1, Data.Temp.Length - (Data.Temp.IndexOf(',') + 1));
+                        //Data.Temp = "N,10641.3309,E,1,4,2.67,7.8,M,2.5,M,,*67 ";
+                        //cut bỏ Data đến dấu phẩy đầu tiên lấy sau dấu phẩy đầu tiên
+                        Data.Temp = Data.Temp.Substring(Data.Temp.IndexOf(',') + 1, Data.Temp.Length - (Data.Temp.IndexOf(',') + 1));
+                        //Data.Temp = "10641.3309,E,1,4,2.67,7.8,M,2.5,M,,*67 ";
+                        //tách lấy kinh độ
+                        Data.Longtitude = Data.Temp.Substring(0, Data.Temp.IndexOf(','));
+                        //tbOutputText.Text += "Longtitude: " + Data.Longtitude + '\n';
+                        //tách lấy độ cao so với mực nước biển
+                        //tìm ký tự M đầu tiên trong chuỗi
+                        //Temp =  $GPGGA,024005.000,1043.4007,N,10641.3308,E,1,4,2.67,7.9,M,2.5,M,,*6E
+                        if (Data.Temp.IndexOf('M') > 0)
+                        {
+                            Data.Temp = Data.Temp.Substring(0, Data.Temp.IndexOf('M') - 1);
+                            //Temp = $GPGGA,024005.000,1043.4007,N,10641.3308,E,1,4,2.67,7.9
+                            //Độ cao là số sao dấu phẩy cuối cùng
+                            Data.Altitude = Data.Temp.Substring(Data.Temp.LastIndexOf(',') + 1);
+                        }
+
+                        ShowSpeed_Alt_Position();
+
+
+
+                    }
+                    //**********************************************************************
+
+                    //speed and angle
+                    //Tìm chuối bắt đầu với $GPVTG để tìm angle
+                    if (-1 != Data.Temp.IndexOf("GPV"))
+                    {
+                        //Chuỗi này chứa angle
+                        //Reset bộ đếm số dòng của cảm biến IMU
+                        //index_dataAcc = 0;
+                        //$GPVTG,350.40,T,,M,0.95,N,1.76,K,A
+
+                        //cut bỏ Data đến dấu phẩy đầu tiên lấy sau dấu phẩy đầu tiên
+                        Data.Temp = Data.Temp.Substring(Data.Temp.IndexOf(',') + 1, Data.Temp.Length - (Data.Temp.IndexOf(',') + 1));
+                        //Data.Temp = "350.40,T,,M,0.95,N,1.76,K,A";
+                        //tbOutputText.Text += "DataSauCut: " + Data.Temp + '\n';
+                        //tách lấy góc
+                        Data.Angle = Data.Temp.Substring(0, Data.Temp.IndexOf(','));
+                        //tbOutputText.Text += "Angle: " + Data.Angle + '\n';
+                        //Tách vận tốc
+                        //cut bỏ Data đến chữ N và dấu phẩy kế chữ N nên mới +2 lấy sau dấu phẩy
+                        Data.Temp = Data.Temp.Substring(Data.Temp.IndexOf('N') + 2, Data.Temp.Length - (Data.Temp.IndexOf('N') + 2));
+                        //tbOutputText.Text += "DataSauCut: " + Data.Temp + '\n';
+                        //Data.Temp = "1.76,K,A";
+                        //tách lấy speed km/h
+                        //De phong khong co dau ,
+                        if (Data.Temp.IndexOf(',') != -1)
+                            Data.Speed = Data.Temp.Substring(0, Data.Temp.IndexOf(','));
+                    }
+                }
+                catch
                 {
 
-
-                    //cut bỏ Data đến dấu phẩy đầu tiên lấy sau dấu phẩy đầu tiên
-                    Data.Temp = Data.Temp.Substring(Data.Temp.IndexOf(',') + 1, Data.Temp.Length - (Data.Temp.IndexOf(',') + 1));
-                    //Data.Temp = "024004.900,1043.4006,N,10641.3309,E,1,4,2.67,7.8,M,2.5,M,,*67 ";
-                    ////tbOutputText.Text += "DataSauCut: " + Data.Temp + '\n';
-                    //tách lấy giờ, thời gian GPS chậm hơn thời gian thực 7h nên phải cộng 7
-                    //Nếu time >= 240000.00 thì phải trừ đi 240000.00
-                    double dTemp_Time_hour = 0, dTemp_Time;
-                    string temp_time = Data.Temp.Substring(0, Data.Temp.IndexOf(','));
-                    if (temp_time != "")
-                    {
-                        dTemp_Time_hour = Convert.ToDouble(temp_time.Substring(0, 2)) + 7;
-                        if (dTemp_Time_hour >= 24) dTemp_Time_hour -= 24;
-                        dTemp_Time = Convert.ToDouble(temp_time) + 70000.00;
-                        if (dTemp_Time >= 240000.00) dTemp_Time_hour -= 240000.00;
-                        Data.Time = dTemp_Time.ToString();
-                    }
-                    //show now time
-                    //format hour:min:sec
-
-                    //tblock_Current_Timer.Text = dTemp_Time_hour.ToString() + ':'+ temp_time.Substring(2, 2)
-                    //    + ':' + temp_time.Substring(4, 5);
-                    if (bConnectOk)//connect to Com
-                    {
-                        if (-1 != Data.Time.IndexOf('.'))//have '.' in Data.Time 82754.7
-                            tblock_Current_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 6) + ':'
-                                    + Data.Time.Substring(Data.Time.Length - 6, 2) + ':' + Data.Time.Substring(Data.Time.Length - 4, 4);
-                        else
-                            tblock_Current_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 4) + ':'
-                                    + Data.Time.Substring(Data.Time.Length - 4, 2) + ':' + Data.Time.Substring(Data.Time.Length - 2, 2);
-                    }
-
-                    //tblock_CurentTime.Text = "Now: " + Data.Time;
-                    //Ngày 17/12/2015 17h36 ok
-                    //tbOutputText.Text += "Time: " + Data.Time + '\n';
-                    //cut bỏ Data đến dấu phẩy đầu tiên lấy sau dấu phẩy đầu tiên
-                    Data.Temp = Data.Temp.Substring(Data.Temp.IndexOf(',') + 1, Data.Temp.Length - (Data.Temp.IndexOf(',') + 1));
-                    //Data.Temp = "1043.4006,N,10641.3309,E,1,4,2.67,7.8,M,2.5,M,,*67 ";
-                    ////tbOutputText.Text += "DataSauCut: " + Data.Temp + '\n';
-                    //tách lấy vĩ độ mặc định ở vĩ độ North
-                    Data.Latitude = Data.Temp.Substring(0, Data.Temp.IndexOf(','));
-                    //tbOutputText.Text += "Latitude: " + Data.Latitude + '\n';
-                    //cut bỏ Data đến dấu phẩy đầu tiên lấy sau dấu phẩy đầu tiên
-                    Data.Temp = Data.Temp.Substring(Data.Temp.IndexOf(',') + 1, Data.Temp.Length - (Data.Temp.IndexOf(',') + 1));
-                    //Data.Temp = "N,10641.3309,E,1,4,2.67,7.8,M,2.5,M,,*67 ";
-                    //cut bỏ Data đến dấu phẩy đầu tiên lấy sau dấu phẩy đầu tiên
-                    Data.Temp = Data.Temp.Substring(Data.Temp.IndexOf(',') + 1, Data.Temp.Length - (Data.Temp.IndexOf(',') + 1));
-                    //Data.Temp = "10641.3309,E,1,4,2.67,7.8,M,2.5,M,,*67 ";
-                    //tách lấy kinh độ
-                    Data.Longtitude = Data.Temp.Substring(0, Data.Temp.IndexOf(','));
-                    //tbOutputText.Text += "Longtitude: " + Data.Longtitude + '\n';
-                    //tách lấy độ cao so với mực nước biển
-                    //tìm ký tự M đầu tiên trong chuỗi
-                    //Temp =  $GPGGA,024005.000,1043.4007,N,10641.3308,E,1,4,2.67,7.9,M,2.5,M,,*6E
-                    if (Data.Temp.IndexOf('M') > 0)
-                    {
-                        Data.Temp = Data.Temp.Substring(0, Data.Temp.IndexOf('M') - 1);
-                        //Temp = $GPGGA,024005.000,1043.4007,N,10641.3308,E,1,4,2.67,7.9
-                        //Độ cao là số sao dấu phẩy cuối cùng
-                        Data.Altitude = Data.Temp.Substring(Data.Temp.LastIndexOf(',') + 1);
-                    }
-
-                    ShowSpeed_Alt_Position();
-
-
-
-                }
-                //**********************************************************************
-
-                //speed and angle
-                //Tìm chuối bắt đầu với $GPVTG để tìm angle
-                if (-1 != Data.Temp.IndexOf("GPV"))
-                {
-                    //Chuỗi này chứa angle
-                    //Reset bộ đếm số dòng của cảm biến IMU
-                    //index_dataAcc = 0;
-                    //$GPVTG,350.40,T,,M,0.95,N,1.76,K,A
-
-                    //cut bỏ Data đến dấu phẩy đầu tiên lấy sau dấu phẩy đầu tiên
-                    Data.Temp = Data.Temp.Substring(Data.Temp.IndexOf(',') + 1, Data.Temp.Length - (Data.Temp.IndexOf(',') + 1));
-                    //Data.Temp = "350.40,T,,M,0.95,N,1.76,K,A";
-                    //tbOutputText.Text += "DataSauCut: " + Data.Temp + '\n';
-                    //tách lấy góc
-                    Data.Angle = Data.Temp.Substring(0, Data.Temp.IndexOf(','));
-                    //tbOutputText.Text += "Angle: " + Data.Angle + '\n';
-                    //Tách vận tốc
-                    //cut bỏ Data đến chữ N và dấu phẩy kế chữ N nên mới +2 lấy sau dấu phẩy
-                    Data.Temp = Data.Temp.Substring(Data.Temp.IndexOf('N') + 2, Data.Temp.Length - (Data.Temp.IndexOf('N') + 2));
-                    //tbOutputText.Text += "DataSauCut: " + Data.Temp + '\n';
-                    //Data.Temp = "1.76,K,A";
-                    //tách lấy speed km/h
-                    //De phong khong co dau ,
-                    if (Data.Temp.IndexOf(',') != -1)
-                        Data.Speed = Data.Temp.Substring(0, Data.Temp.IndexOf(','));
                 }
             }
         }
