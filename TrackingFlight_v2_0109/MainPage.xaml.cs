@@ -675,29 +675,38 @@ namespace TrackingFlight_v2_0109
 
             //}
             //Process and Save
-            string sTemp;//dung để process and save
+            string sTemp = "";//dung để process and save
+            //byte checkerror;
             if (bytesRead > 0)
             {
-                //rcvdText.Text = dataReaderObject.ReadString(bytesRead);
-                sTemp = dataReaderObject.ReadString(bytesRead);
-                //dataReaderObject.r
-                //status.Text = "bytes read successfully!";
-                ////Save data to .txt file
-                //bufferSavedata += rcvdText.Text;
-
-                strDataFromSerialPort += sTemp;
-
+                byte[] data_check_error = new byte[bytesRead];
+                byte[] data_right = new byte[bytesRead];
+                Int16 temp_index_data_right = 0;
                 try
                 {
-                    //if ((strDataFromSerialPort != " ") && (strDataFromSerialPort != ""))
-                    //ProcessData();
+                    //{
+                    //    sTemp = dataReaderObject.ReadString(bytesRead);
+                    //    strDataFromSerialPort += sTemp;
+                    //    processDataToDrawTrajactory();
+                    //}
+
+                    //check error, char > 127 => not string
+                    for(int temp_index = 0; temp_index < bytesRead; temp_index++)
+                    {
+                        if(data_check_error[temp_index] < 127)
+                        {
+                            data_right[temp_index_data_right] = data_check_error[temp_index];
+                            temp_index_data_right++;
+                        }
+                    }
+                    strDataFromSerialPort += data_right.ToString();
                     processDataToDrawTrajactory();
                 }
                 catch (Exception ex)
                 {
 
                     errorFrame += 1;
-                    tblock_Current_Timer.Text = "frame error: " + strDataFromSerialPort + "Error: " + ex.Message + "No Error: " + errorFrame.ToString();
+                    tblock_Current_Timer.Text = "frame error: " + strDataFromSerialPort + ", Error: " + ex.Message + "No Error: " + errorFrame.ToString();
 
                 }
                 //
@@ -1415,9 +1424,9 @@ namespace TrackingFlight_v2_0109
         {
             if (bConnectOk)
             {
-                if (strDataFromSerialPort.IndexOf("\r\n") != -1)//Bắt ký tự $
+                if (strDataFromSerialPort.IndexOf('\r') != -1)//Bắt ký tự $
                 {
-                    Data.Temp = FindTextInStr(strDataFromSerialPort, "\r\n");
+                    Data.Temp = FindTextInStr(strDataFromSerialPort, '\r');
                     processDataFull();
                 }
             }
@@ -1578,7 +1587,7 @@ namespace TrackingFlight_v2_0109
                             Data.Speed = Data.Temp.Substring(0, Data.Temp.IndexOf(','));
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
 
                 }
@@ -1708,17 +1717,17 @@ namespace TrackingFlight_v2_0109
         /// <param name="strIsProcess"></param>
         /// <param name="text"></param>
         /// <returns></returns>
-        public string FindTextInStr(string strIsProcess, string char_cantim)
+        public string FindTextInStr(string strIsProcess, char char_cantim)
         {
             /*
-                  0006 -0003  1594  0006  0000 -0006  0016  0003  0986 -0161 -0058  0130  1078 
-                $GPVTG,,T,,M,0.209,N,0.387,K,D*21
-                $GPGGA,063621.90,1045.56915,N,10639.72723,E,2,10,1.93,37.0,M,-2.5,M,,0000*72
+                \n$  0006 -0003  1594  0006  0000 -0006  0016  0003  0986 -0161 -0058  0130  1078\r 
+                \n$GPVTG,,T,,M,0.209,N,0.387,K,D*21\r
+                \n$GPGGA,063621.90,1045.56915,N,10639.72723,E,2,10,1.93,37.0,M,-2.5,M,,0000*72\r
             */
             string ReturnData = "";
             ReturnData = strIsProcess.Substring(0, strIsProcess.IndexOf(char_cantim));
-
-            strDataFromSerialPort = strIsProcess.Remove(0, strIsProcess.IndexOf(char_cantim) + 2);
+            //remove \r to process next line
+            strDataFromSerialPort = strIsProcess.Remove(0, strIsProcess.IndexOf(char_cantim) + 1);
             return ReturnData;
         }
 
