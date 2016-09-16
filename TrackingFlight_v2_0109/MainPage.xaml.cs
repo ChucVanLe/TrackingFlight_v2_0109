@@ -675,7 +675,7 @@ namespace TrackingFlight_v2_0109
 
             //}
             //Process and Save
-            string sTemp = "";//dung để process and save
+            //string sTemp = "";//dung để process and save
             //byte checkerror;
             if (bytesRead > 0)
             {
@@ -684,22 +684,21 @@ namespace TrackingFlight_v2_0109
                 Int16 temp_index_data_right = 0;
                 try
                 {
-                    //{
-                    //    sTemp = dataReaderObject.ReadString(bytesRead);
-                    //    strDataFromSerialPort += sTemp;
-                    //    processDataToDrawTrajactory();
-                    //}
+                    //sTemp = dataReaderObject.ReadString(bytesRead);
+                    //strDataFromSerialPort += dataReaderObject.ReadString(bytesRead);
+                    //processDataToDrawTrajactory();                                                                                                                                                                                                    
 
                     //check error, char > 127 => not string
-                    for(int temp_index = 0; temp_index < bytesRead; temp_index++)
+                    dataReaderObject.ReadBytes(data_check_error);
+                    for (int temp_index = 0; temp_index < bytesRead; temp_index++)
                     {
-                        if(data_check_error[temp_index] < 127)
+                        if (data_check_error[temp_index] < 127)
                         {
                             data_right[temp_index_data_right] = data_check_error[temp_index];
                             temp_index_data_right++;
                         }
                     }
-                    strDataFromSerialPort += data_right.ToString();
+                    strDataFromSerialPort += System.Text.Encoding.UTF8.GetString(data_right);
                     processDataToDrawTrajactory();
                 }
                 catch (Exception ex)
@@ -1587,7 +1586,7 @@ namespace TrackingFlight_v2_0109
                             Data.Speed = Data.Temp.Substring(0, Data.Temp.IndexOf(','));
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
 
                 }
@@ -4270,9 +4269,9 @@ namespace TrackingFlight_v2_0109
 
                 //top = -(-1103) - dAirSpeed * 4.16;
 
-                if (dAirSpeed < 88)
+                if (dAirSpeed < 70)
                     top = -(-2168) - dAirSpeed * 4.16;
-                else top = -(-2168) - 88 * 4.16 - (dAirSpeed - 88) * 4.167 / 2;
+                else top = -(-2168) - 70 * 4.167 - (dAirSpeed - 70) * 4.167 / 2;
 
                 //top = -(-sliderAdjSpeed.Value) - 0 * 4.16;
 
@@ -4563,21 +4562,16 @@ namespace TrackingFlight_v2_0109
             //dAlttitude = Convert.ToDouble(TestText.Text);
             double top, dAirSpeed_original = dAlttitude, t_cut;
             t_cut = -(-1980.45) - dAlttitude * 0.416;
-            //top = -(dAlttitude - 2000);
-            //if (dAirSpeed < 90)
             {
-                //dAirSpeed = dAirSpeed - 424;//Image 1
-                //top = -(dAirSpeed * 40 / 9.6);
 
-                //top = -(-1103) - dAirSpeed * 4.16;
-
-                if (dAlttitude < 957.21139) top = -(-1980.45) - dAlttitude * 0.416;
-                //else top = -(-1980.45) - dAlttitude * 0.415;
+                if (dAlttitude < 1006)
+                    top = -(-1980.45) - dAlttitude * 0.416;
                 else
                 {
-                    top = -(-1980.3) - 957.21139 * 0.416 - (dAlttitude - 957.21139) * 0.4167 / 2;
-                    t_cut = -(-1980.3) - dAlttitude * 0.4167;
+                    top = -(-1980.45) - 1006 * 0.416 - (dAlttitude - 1006) * 0.416 / 2;
+                    //t_cut = -(-1980.3) - dAlttitude * 0.4167;
                 }
+
                 //else top = -(-1103) - 105.0 * 4.16 - (dAlttitude - 105) * 4.168 / 2;
 
                 //top = -(-1103) - dAirSpeed * 4.16; đúng từ 0 đến 100
@@ -5176,6 +5170,8 @@ namespace TrackingFlight_v2_0109
             //            Convert.ToDouble(Data.Altitude), slider.Value);//ok
             //Draw_Trajectory_And_Flight_optimize(10.818442, 106.658824,
             //            Convert.ToDouble(0), slider.Value);//ok
+            //Draw_Airspeed_full_optimize(slider.Value, 150 - 32 + i16EditPosition, 205);
+            //Draw_Alttitude_full_optimize(500 + slider.Value, 550 + 88 / 2 + i16EditPosition * 17 / 6, 80);//ok
         }
 
         /// <summary>

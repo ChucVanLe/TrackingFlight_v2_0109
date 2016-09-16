@@ -17,8 +17,8 @@
         <Maps:MapControl x:Name="myMap" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Height="730" Width="1260"  >
         </Maps:MapControl>
 
-        <!--<Slider x:Name="slider" Margin="679,159,1072,561" Height="100" SmallChange="1" ValueChanged="slider_ValueChanged" Maximum="360" />
-        <Slider x:Name="slider_test" Margin="679,316,1072,404" Height="100" SmallChange="1" ValueChanged="slider_ValueChanged" Maximum="100" />
+        <!--<Slider x:Name="slider" Margin="679,159,1072,561" Height="100" ValueChanged="slider_ValueChanged" Maximum="1200" Minimum="0" />-->
+        <!--<Slider x:Name="slider_test" Margin="679,316,1072,404" Height="100" SmallChange="1" ValueChanged="slider_ValueChanged" Maximum="100" />
         <Slider x:Name="slider_test1" Margin="679,480,1072,240" Height="100" SmallChange="1" ValueChanged="slider_ValueChanged" Maximum="100" />-->
         <!--
         <Button x:Name="Map3D" Click="Map3D_Click" HorizontalAlignment="Left" Content="Map3D"
