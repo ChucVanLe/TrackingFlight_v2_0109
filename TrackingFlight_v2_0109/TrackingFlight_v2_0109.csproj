@@ -112,18 +112,8 @@
   <ItemGroup>
     <Content Include="Assets\airplane-icon.png" />
     <Content Include="Assets\AltitudeFull.png" />
-    <Content Include="Assets\arrows_extend_full_screen_full.png" />
-    <Content Include="Assets\AutoZoom_Off.png" />
-    <Content Include="Assets\AutoZoom_On.png" />
-    <Content Include="Assets\auto_zoom.png" />
-    <Content Include="Assets\Com.png" />
     <Content Include="Assets\Compass_Rose_English_North.png" />
-    <Content Include="Assets\Connect.png" />
-    <Content Include="Assets\decrease_36x36.png" />
-    <Content Include="Assets\Disconnect.png" />
     <Content Include="Assets\horizon.bmp" />
-    <Content Include="Assets\increase_36x36.png" />
-    <Content Include="Assets\LockScreenLogo.scale-20.png" />
     <Content Include="Assets\Logo150x150.png" />
     <Content Include="Assets\Logo310x150.png" />
     <Content Include="Assets\Logo44x44.png" />
@@ -132,11 +122,8 @@
     <Content Include="Assets\Logo_Full_620x300.png" />
     <Content Include="Assets\MyHome.png" />
     <Content Include="Assets\Needle.png" />
-    <Content Include="Assets\On Nghia.txt" />
-    <Content Include="Assets\play.png" />
     <Content Include="Assets\Speed_full.PNG" />
     <Content Include="Assets\Speed_Full_v2.png" />
-    <Content Include="Assets\TwoScreen.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />

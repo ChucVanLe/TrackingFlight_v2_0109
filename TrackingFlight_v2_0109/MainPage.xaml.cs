@@ -145,15 +145,6 @@ namespace TrackingFlight_v2_0109
             Dis_Setup();
         }
 
-        /// <summary>
-        /// Test function delay
-        /// </summary>
-        private async void WaitForFiveSeconds()
-        {
-            await System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(20));
-            // do something after 5 seconds!
-        }
-
         //*****************************************************************
         /*
         Class Set up
