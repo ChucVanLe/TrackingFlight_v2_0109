@@ -661,17 +661,6 @@ namespace TrackingFlight_v2_0109
             // Launch the task and wait
             UInt32 bytesRead = await loadAsyncTask;
             //save
-            //UInt32 bytesSave = await savedatatoTxtFile;
-
-            //if (bytesSave > 0)
-            //{
-            //    rcvdText.Text = dataReaderObject.ReadString(bytesRead);
-            //    strDataFromSerialPort += rcvdText.Text;
-            //    //dataReaderObject.r
-            //    //status.Text = "bytes read successfully!";
-
-            //    //Save data to .txt file
-            //    SaveTotxt(rcvdText.Text);
 
             //}
             //Process and Save
@@ -679,27 +668,27 @@ namespace TrackingFlight_v2_0109
             //byte checkerror;
             if (bytesRead > 0)
             {
-                byte[] data_check_error = new byte[bytesRead];
-                byte[] data_right = new byte[bytesRead];
-                Int16 temp_index_data_right = 0;
+                //byte[] data_check_error = new byte[bytesRead];
+                //byte[] data_right = new byte[bytesRead];
+                //Int16 temp_index_data_right = 0;
                 try
                 {
                     //sTemp = dataReaderObject.ReadString(bytesRead);
-                    //strDataFromSerialPort += dataReaderObject.ReadString(bytesRead);
-                    //processDataToDrawTrajactory();                                                                                                                                                                                                    
-
-                    //check error, char > 127 => not string
-                    dataReaderObject.ReadBytes(data_check_error);
-                    for (int temp_index = 0; temp_index < bytesRead; temp_index++)
-                    {
-                        if (data_check_error[temp_index] < 127)
-                        {
-                            data_right[temp_index_data_right] = data_check_error[temp_index];
-                            temp_index_data_right++;
-                        }
-                    }
-                    strDataFromSerialPort += System.Text.Encoding.UTF8.GetString(data_right);
+                    strDataFromSerialPort += dataReaderObject.ReadString(bytesRead);
                     processDataToDrawTrajactory();
+
+                    ////check error, char > 127 => not string
+                    //dataReaderObject.ReadBytes(data_check_error);
+                    //for (int temp_index = 0; temp_index < bytesRead; temp_index++)
+                    //{
+                    //    if (data_check_error[temp_index] < 127)
+                    //    {
+                    //        data_right[temp_index_data_right] = data_check_error[temp_index];
+                    //        temp_index_data_right++;
+                    //    }
+                    //}
+                    //strDataFromSerialPort += System.Text.Encoding.UTF8.GetString(data_right);
+                    //processDataToDrawTrajactory();
                 }
                 catch (Exception ex)
                 {
