@@ -73,8 +73,9 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
+//************************************************
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
+// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
 namespace TrackingFlight_v2_0109
 {
@@ -99,6 +100,7 @@ namespace TrackingFlight_v2_0109
     /// </summary>
     public sealed partial class MainPage : Page
     {
+
         //global variable
 
         double dDistanToTaget;  //Save distan from flight to dentination
@@ -131,20 +133,17 @@ namespace TrackingFlight_v2_0109
         List<BasicGeoposition> positions = new List<BasicGeoposition>();
 
         //end of global variable
-
-        /// <summary>
-        /// fisrt scan when program start
-        /// </summary>
         public MainPage()
         {
             this.InitializeComponent();
+            //NewItems = SampleDataModel.GetSampleData().Where(x => x.IsNew).ToList();
+            //FlaggedItems = SampleDataModel.GetSampleData().Where(x => x.IsFlagged).ToList();
+            //AllItems = SampleDataModel.GetSampleData().ToList();
+            //this.Suggestions = new ObservableCollection<SampleDataModel>();
 
-            //*************************************************************************
-            //Ngày 29/02/2016 Software Artchitecture
-            //ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.FullScreen;
+            //this.DataContext = this;
             Dis_Setup();
         }
-
         //*****************************************************************
         /*
         Class Set up
@@ -369,7 +368,7 @@ namespace TrackingFlight_v2_0109
             Draw_Airspeed_full_optimize(0, 150 - 32 + i16EditPosition, 205);//ok500, 120
                                                                             //Speed_Image_Setup(100, 150, 100);
                                                                             //Da can chinh 1/3
-            PitchAndRoll_Setup(0, 0, 350 + i16EditPosition * 11 / 6, 210, 140, 50);//ok
+            PitchAndRoll_Setup(0, 0, 350 + i16EditPosition * 11 / 6, 210, 140, 50);//ok_21092016
             PitchAndRoll_Draw(0, 0, 350 + i16EditPosition * 11 / 6, 210, 140, 50);//ok
 
 
@@ -393,7 +392,7 @@ namespace TrackingFlight_v2_0109
 
             ///////////////////////////////////////////////////////////////////
             //Add needle
-            AddNeedle(screenWidth - 35, screenHeight - 50);//screenWidth
+            AddNeedle(screenWidth - 35, screenHeight - 70);//screenWidth
 
         }
         //*************End Of Class inside class set up****************************************
@@ -689,7 +688,6 @@ namespace TrackingFlight_v2_0109
 
                 }
                 //
-                //SaveTotxt(sTemp);
 
 
             }
@@ -730,44 +728,6 @@ namespace TrackingFlight_v2_0109
         }
         //***************************************************************************
 
-        //***************************************************************************
-        //Receice Data
-        private async void ReceiveData_Click(object sender, RoutedEventArgs e)
-        {
-            // read the data
-
-            DataReader dreader = new DataReader(serialPort.InputStream);
-            uint sizeFieldCount = await dreader.LoadAsync(sizeof(uint));
-            if (sizeFieldCount != sizeof(uint))
-            {
-                return;
-            }
-
-            uint stringLength;
-            uint actualStringLength;
-
-            try
-            {
-                stringLength = dreader.ReadUInt32();
-                actualStringLength = await dreader.LoadAsync(stringLength);
-
-                if (stringLength != actualStringLength)
-                {
-                    return;
-                }
-                string text = dreader.ReadString(actualStringLength);
-
-                //message.Text = text;
-
-            }
-            catch
-            {
-                //errorStatus.Visibility = Visibility.Visible;
-                //errorStatus.Text = "Reading data from Bluetooth encountered error!" + ex.Message;
-            }
-
-
-        }
         //End of all function of UART**************************************************************
 
         /// <summary>
@@ -875,11 +835,7 @@ namespace TrackingFlight_v2_0109
         public void ShowDistance(int index, double Roll, string drawString, double SizeOfText,
             double lat, double lon, double Opacity)
         {
-            //create graphic text block design text
-            //TextBlock Tb_ShowDistance[index] = new TextBlock();
-            //chiều dài rộng của khung chứa text
-            //Tb_ShowDistance[index].Height = HeightOfBlock;
-            //Tb_ShowDistance[index].Width = WidthOfBlock;
+
             //canh lề, left, right, center
             myMap.Children.Remove(Tb_ShowDistance[index]);
             Tb_ShowDistance[index] = new TextBlock();
@@ -906,9 +862,6 @@ namespace TrackingFlight_v2_0109
                 //CenterX = 25, //The prop name maybe mistyped 
                 //CenterY = 25 //The prop name maybe mistyped 
             };
-            //position of text left, top, right, bottom
-            //Tb_ShowDistance[index].Margin = new Windows.UI.Xaml.Thickness(100, 20, 0, 0);
-            //BackgroundDisplay.Children.Add(Tb_ShowDistance[index]);
 
             //Đặt theo tọa độ
             //Tan Son Nhat Airport dLatDentination, dLonDentination
@@ -1004,42 +957,6 @@ namespace TrackingFlight_v2_0109
             await myMap.TrySetSceneAsync(MapScene.CreateFromLocationAndRadius(point, 1000, 0, 0));//0: phuong cua ban do, 0 là hướng bắc, 45 độ nghiêng
         }
         //******************Map 3D*************************
-        /// <summary>
-        /// Map 3D
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private async void display3DLocation(object sender, Windows.UI.Xaml.RoutedEventArgs e)
-        {
-            if (myMap.Is3DSupported)
-            {
-                // Set the aerial 3D view.
-                myMap.Style = MapStyle.Aerial3DWithRoads;
-
-                // Specify the location.
-                BasicGeoposition hwGeoposition = new BasicGeoposition() { Latitude = 34.134, Longitude = -118.3216 };
-                Geopoint hwPoint = new Geopoint(hwGeoposition);
-
-                // Create the map scene.
-                MapScene hwScene = MapScene.CreateFromLocationAndRadius(hwPoint,
-                                                                                     80, /* show this many meters around */
-                                                                                     0, /* looking at it to the North*/
-                                                                                     60 /* degrees pitch */);
-                // Set the 3D view with animation.
-                await myMap.TrySetSceneAsync(hwScene, MapAnimationKind.Bow);
-            }
-            else
-            {
-                // If 3D views are not supported, display dialog.
-                ContentDialog viewNotSupportedDialog = new ContentDialog()
-                {
-                    Title = "3D is not supported",
-                    Content = "\n3D views are not supported on this device.",
-                    PrimaryButtonText = "OK"
-                };
-                await viewNotSupportedDialog.ShowAsync();
-            }
-        }
 
         //draw line in map 2D
         //đường thẳng đưa vào là biến toàn cục
@@ -1065,246 +982,7 @@ namespace TrackingFlight_v2_0109
 
 
         }
-        //*****************************************
-        /// <summary>
-        /// route in 3D map
-        /// </summary>
-        public async void DrawRoute3DInMap()
-        {
-            Geopoint point1 = new Geopoint(new BasicGeoposition()
-            {
-                Latitude = myMap.Center.Position.Latitude,
-                Longitude = myMap.Center.Position.Longitude,
-                //Altitude = 200.0
-            });
-            Geopoint point2 = new Geopoint(new BasicGeoposition()
-            {
-                Latitude = myMap.Center.Position.Latitude + 0.001,
-                Longitude = myMap.Center.Position.Longitude,
-                //Altitude = 200.0
-            });
-            BasicGeoposition startLocation = new BasicGeoposition();
-            startLocation.Latitude = 40.7517;
-            startLocation.Longitude = -073.9766;
-            Geopoint startPoint1 = new Geopoint(startLocation);
 
-            // End at Central Park in New York City.
-            BasicGeoposition endLocation1 = new BasicGeoposition();
-            endLocation1.Latitude = 40.7669;
-            endLocation1.Longitude = -073.9790;
-            Geopoint endPoint1 = new Geopoint(endLocation1);
-
-            // Get the route between the points.
-
-            MapRouteFinderResult routeResult =
-               await MapRouteFinder.GetDrivingRouteAsync(startPoint1, endPoint1,
-                MapRouteOptimization.TimeWithTraffic,
-                MapRouteRestrictions.None);
-            // MapRouteFinderResult router = await MapRouteFinder.GetDrivingRouteAsync(;
-
-
-
-            // Fit the MapControl to the route.
-
-            if (routeResult.Status == MapRouteFinderStatus.Success)
-            {
-                MapRouteView viewOfRoute = new MapRouteView(routeResult.Route);
-                //MapRouteView viewOfRoute = new MapRouteView(routeResult.Route);
-                viewOfRoute.RouteColor = Colors.Red;
-                viewOfRoute.OutlineColor = Colors.Blue;
-
-                // Add the new MapRouteView to the Routes collection
-                // of the MapControl.
-                myMap.Routes.Add(viewOfRoute);
-
-                // Use the route to initialize a MapRouteView.
-                viewOfRoute = new MapRouteView(routeResult.Route);
-                viewOfRoute.RouteColor = Colors.Yellow;
-                viewOfRoute.OutlineColor = Colors.Black;
-                // Fit the MapControl to the route.
-                await myMap.TrySetViewBoundsAsync(
-                    routeResult.Route.BoundingBox,
-                    null,
-                    Windows.UI.Xaml.Controls.Maps.MapAnimationKind.None);
-
-                // Add the new MapRouteView to the Routes collection
-                // of the MapControl.
-
-            }
-
-            if (routeResult.Status == MapRouteFinderStatus.Success)
-
-
-            {
-
-
-                //(routeResult.Route.LengthInMeters / 1000);
-
-
-            }
-
-        }
-
-        //****************************************************
-        /// <summary>
-        /// set route
-        /// </summary>
-        public async void SetRouteDirectionsBreda()
-        {
-            //ok
-            string beginLocation = "ho chi minh";
-            string endLocation = "Binh Duong";
-
-            MapLocationFinderResult result = await MapLocationFinder.FindLocationsAsync(beginLocation, myMap.Center);
-            MapLocation begin = result.Locations.First();
-
-            result = await MapLocationFinder.FindLocationsAsync(endLocation, myMap.Center);
-            MapLocation end = result.Locations.First();
-
-            List<Geopoint> waypoints = new List<Geopoint>();
-            waypoints.Add(begin.Point);
-            // Adding more waypoints later
-            waypoints.Add(end.Point);
-            //Add point
-
-
-            MapRouteFinderResult routeResult = await MapRouteFinder.GetDrivingRouteAsync(begin.Point, end.Point, MapRouteOptimization.Time, MapRouteRestrictions.None);
-
-            //System.Diagnostics.Debug.WriteLine(routeResult.Status); // DEBUG
-
-            if (routeResult.Status == MapRouteFinderStatus.Success)
-            {
-                MapRouteView viewOfRoute = new MapRouteView(routeResult.Route);
-                viewOfRoute.RouteColor = Colors.Green;
-                viewOfRoute.OutlineColor = Colors.Black;
-
-                myMap.Routes.Add(viewOfRoute);
-
-                await myMap.TrySetViewBoundsAsync(routeResult.Route.BoundingBox, null, MapAnimationKind.None);
-            }
-            else
-            {
-                // throw new Exception(routeResult.Status.ToString());
-            }
-        }
-        ////****************************Ngay 22/11/2015************************
-        //chỉ đường chỉ thực hiện online khi nhap vao dia diem
-        //khi nhap toa do thi co the search offline
-        //Chi đường chỉ làm được với 1 số địa điểm được đặt tên trên bản đồ như chi đường giữa 2 tỉnh, từ tp hcm
-
-        /// <summary>
-        /// đến sân bay nha trang "Sân Bay Nha Trang, Khanh Hoa, Vietnam"
-        ///san bay tan son nhat "58 Truong Son, Ward 2, Tan Binh District Ho Chi Minh City  Ho Chi Minh City"
-        ///endLocation2.Latitude = 10.772099;
-        ///endLocation2.Longitude = 106.657693;
-        ///San bay tan son nhat dLatDentination, dLonDentination
-        ///san bay da nang 16.044040, 108.199357
-        /// </summary>
-        public async void SetRouteBetween2Point()
-        {
-            //ok
-            string beginLocation = "ho chi minh";
-            string endLocation = "ha noi";
-
-            // End at Central in Binh Duong
-            BasicGeoposition endLocation1 = new BasicGeoposition();
-            endLocation1.Latitude = 11.216412;
-            endLocation1.Longitude = 106.957936;
-            Geopoint endPoint1 = new Geopoint(endLocation1);
-            // End at Central in Tan Son Nhat InterNational AirPort: dLatDentination, dLonDentination
-            BasicGeoposition endLocation2 = new BasicGeoposition();
-            endLocation2.Latitude = 10.759860;
-            endLocation2.Longitude = 106.92668;
-            endLocation2.Altitude = 100;
-            Geopoint endPoint2 = new Geopoint(endLocation2);
-            //position: string
-            MapLocationFinderResult result = await MapLocationFinder.FindLocationsAsync(beginLocation, myMap.Center);
-            MapLocation begin = result.Locations.First();
-
-            result = await MapLocationFinder.FindLocationsAsync(endLocation, myMap.Center);
-            MapLocation end = result.Locations.First();
-
-            List<Geopoint> waypoints = new List<Geopoint>();
-            waypoints.Add(begin.Point);
-            // Adding more waypoints later
-            waypoints.Add(end.Point);
-
-            MapRouteFinderResult routeResult = await MapRouteFinder.GetDrivingRouteAsync(begin.Point, end.Point, MapRouteOptimization.Distance, MapRouteRestrictions.Highways);
-            //test show point
-            //tb_ZoomLevel.Text = begin.Point.Position.Latitude.ToString() + "  "
-            //                    + begin.Point.Position.Longitude.ToString();
-            //System.Diagnostics.Debug.WriteLine(routeResult.Status); // DEBUG
-
-            if (routeResult.Status == MapRouteFinderStatus.Success)
-            {
-                MapRouteView viewOfRoute = new MapRouteView(routeResult.Route);
-                viewOfRoute.RouteColor = Colors.Green;
-                viewOfRoute.OutlineColor = Colors.Black;
-
-                myMap.Routes.Add(viewOfRoute);
-
-                await myMap.TrySetViewBoundsAsync(routeResult.Route.BoundingBox, null, MapAnimationKind.None);
-            }
-            else
-            {
-                // throw new Exception(routeResult.Status.ToString());
-            }
-        }
-
-        /// <summary>
-        /// map 3D
-        /// </summary>
-        private async void showMap3D_Aerial3DWithRoads()
-        {
-            myMap.Style = MapStyle.Aerial3DWithRoads;
-            //wiew map 3D 1000, 0, 90
-            Geopoint point = new Geopoint(new BasicGeoposition()
-            {
-                Latitude = myMap.Center.Position.Latitude,
-                Longitude = myMap.Center.Position.Longitude
-            });
-            await myMap.TrySetSceneAsync(MapScene.CreateFromLocationAndRadius(point, 1000, 0, 80));//0: phuong cua ban do, 0 là hướng bắc, 45 độ nghiêng
-                                                                                                   // DrawRoute3DInMap();
-        }
-        //***********************************************
-        /// <summary>
-        /// show 3D map
-        /// </summary>
-        private async void showMap3D_Roads()
-        {
-            //myMap.Style = MapStyle.Aerial3DWithRoads;
-            ////wiew map 3D 1000, 0, 90
-            //Geopoint point = new Geopoint(new BasicGeoposition()
-            //{
-            //    Latitude = myMap.Center.Position.Latitude,
-            //    Longitude = myMap.Center.Position.Longitude
-            //});
-            //await myMap.TrySetSceneAsync(MapScene.CreateFromLocationAndRadius(point, 1000, 0, 50));//0: phuong cua ban do, 0 là hướng bắc, 45 độ nghiêng
-            //                                                                                       // DrawRoute3DInMap();
-
-            if (myMap.Is3DSupported)
-            {
-                this.myMap.Style = MapStyle.Aerial3DWithRoads;
-
-                BasicGeoposition spaceNeedlePosition = new BasicGeoposition();
-                spaceNeedlePosition.Latitude = 47.6204;
-                spaceNeedlePosition.Longitude = -122.3491;
-
-                Geopoint spaceNeedlePoint = new Geopoint(spaceNeedlePosition);
-
-                MapScene spaceNeedleScene = MapScene.CreateFromLocationAndRadius(spaceNeedlePoint,
-                                                                                    400, /* show this many meters around */
-                                                                                    0, /* looking at it to the south east*/
-                                                                                    60 /* degrees pitch */);
-
-                await myMap.TrySetSceneAsync(spaceNeedleScene);
-            }
-            else
-            {
-                //string status = "3D views are not supported on this device.";
-                //rootPage.NotifyUser(status, NotifyType.ErrorMessage);
-            }
-        }
         bool Map3D = true;
 
         /// <summary>
@@ -1358,39 +1036,6 @@ namespace TrackingFlight_v2_0109
 
         }
 
-        //test map3D
-        private async void showStreetsideView()
-        {
-            // Check if Streetside is supported.
-            if (myMap.IsStreetsideSupported)
-            {
-                // Find a panorama near Avenue Gustave Eiffel.
-                BasicGeoposition cityPosition = new BasicGeoposition() { Latitude = 48.858, Longitude = 2.295 };
-                Geopoint cityCenter = new Geopoint(cityPosition);
-                StreetsidePanorama panoramaNearCity = await StreetsidePanorama.FindNearbyAsync(cityCenter);
-
-                // Set the Streetside view if a panorama exists.
-                if (panoramaNearCity != null)
-                {
-                    // Create the Streetside view.
-                    StreetsideExperience ssView = new StreetsideExperience(panoramaNearCity);
-                    ssView.OverviewMapVisible = true;
-                    myMap.CustomExperience = ssView;
-                }
-            }
-            else
-            {
-                // If Streetside is not supported
-                ContentDialog viewNotSupportedDialog = new ContentDialog()
-                {
-                    Title = "Streetside is not supported",
-                    Content = "\nStreetside views are not supported on this device.",
-                    PrimaryButtonText = "OK"
-                };
-                await viewNotSupportedDialog.ShowAsync();
-            }
-        }
-
 
         //ngày 28/11/2015 sử dụng Win2D.uwp
         //Chú ý muốn nhận cổng com của cường thì phải cài driver cho nó
@@ -1426,7 +1071,7 @@ namespace TrackingFlight_v2_0109
                 //if (Data.Temp.IndexOf('$') != -1)
                 try
                 {
-                    
+
                     //cắt bỏ ký tự '$'
                     Data.Temp = Data.Temp.Substring(Data.Temp.IndexOf('$') + 1, Data.Temp.Length - (Data.Temp.IndexOf('$') + 1));
                     //data acc
@@ -1440,9 +1085,13 @@ namespace TrackingFlight_v2_0109
                         //Data của Anh Bình có xuất hiện chỗ trục trặt nôi chặn lỗi này
                         //
 
-                        Data.Roll = Data.DataAcc.Substring(0, 6);
-                        Data.Pitch = Data.DataAcc.Substring(6, 6);
-                        Data.Yaw = Data.DataAcc.Substring(12, 6);
+                        //Data.Roll = Data.DataAcc.Substring(0, 6);
+                        //Data.Pitch = Data.DataAcc.Substring(6, 6);
+                        //Data.Yaw = Data.DataAcc.Substring(12, 6);
+
+                        Data.Roll = Data.DataAcc.Substring(1, 6);
+                        Data.Pitch = Data.DataAcc.Substring(7, 6);
+                        Data.Yaw = Data.DataAcc.Substring(13, 6);
 
                         //vẽ luôn
                         if (bSetup)
@@ -1913,26 +1562,6 @@ namespace TrackingFlight_v2_0109
             bt_Speed.IsEnabled = false;
         }
         //--------------------------------------------------------------------------
-        //--------------------------------------------------------------------------
-        //ngay 9/8/2016
-        //Add border
-
-        public void FillRect_Border(SolidColorBrush Blush, double StartX, double StartY, double width, double height, double Opacity)
-        {
-            Rectangle TestRet_Border = new Rectangle();
-            TestRet_Border.Fill = Blush;
-            TestRet_Border.Height = height;
-            TestRet_Border.Width = width;
-            TestRet_Border.Opacity = Opacity;
-            //Xac định tọa độ
-            TestRet_Border.Margin = new Windows.UI.Xaml.Thickness(
-                -2358 + dConvertToTabletX + TestRet_Border.Width + StartX * 2, -798 + dConvertToTabletY + TestRet_Border.Height + StartY * 2, 0, 0);
-            //TestRetangle.Margin = new Windows.UI.Xaml.Thickness(
-            //-2358 + TestRetangle.Width + x * 2, -200, 0, 0);
-
-        }
-
-
 
 
         //Đã hoàn thành chỉnh 2 màn hình 09/12/2015 0h23p
@@ -2128,9 +1757,9 @@ namespace TrackingFlight_v2_0109
             //Draw
             Polygon myPolygon = new Polygon();
             PointCollection myPointCollection = new PointCollection();
-            myPointCollection.Add(new Point(x1 - xmin, y1 - ymin));
-            myPointCollection.Add(new Point(x2 - xmin, y2 - ymin));
-            myPointCollection.Add(new Point(x3 - xmin, y3 - ymin));
+            myPointCollection.Add(new Point(x1, y1));
+            myPointCollection.Add(new Point(x2, y2));
+            myPointCollection.Add(new Point(x3, y3));
             //myPointCollection.Add(new Point(0.025, 0.005 * sliderAdjSpeed.Value));
 
             //BackgroundDisplay.Children.Remove(myPolygon);
@@ -2142,9 +1771,10 @@ namespace TrackingFlight_v2_0109
             myPolygon.Stroke = new SolidColorBrush(Colors.Black);
             myPolygon.StrokeThickness = 1;
             //Xac định tọa độ -2060, -491
-            //myPolygon.Margin = new Windows.UI.Xaml.Thickness(-2338 + xmin * 2, -786 + 2 * ymin, 0, 0);
+            myPolygon.HorizontalAlignment = HorizontalAlignment.Left;
+            myPolygon.VerticalAlignment = VerticalAlignment.Top;
             //myPolygon.Margin = new Windows.UI.Xaml.Thickness(-2158 + myPolygon.Width, -600 + myPolygon.Height, 0, 0);
-            myPolygon.Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + xmax + xmin, -800 + dConvertToTabletY + ymax + ymin, 0, 0);
+            myPolygon.Margin = new Windows.UI.Xaml.Thickness(xmin, ymin, 0, 0);
             //myPolygon.Margin = new Windows.UI.Xaml.Thickness(-2250 , -486, 0, 0);
             BackgroundDisplay.Children.Add(myPolygon);
 
@@ -2171,9 +1801,9 @@ namespace TrackingFlight_v2_0109
             //Draw
             Polygon myPolygon = new Polygon();
             PointCollection myPointCollection = new PointCollection();
-            myPointCollection.Add(new Point(x1 - xmin, y1 - ymin));
-            myPointCollection.Add(new Point(x2 - xmin, y2 - ymin));
-            myPointCollection.Add(new Point(x3 - xmin, y3 - ymin));
+            myPointCollection.Add(new Point(x1, y1));
+            myPointCollection.Add(new Point(x2, y2));
+            myPointCollection.Add(new Point(x3, y3));
             //myPointCollection.Add(new Point(0.025, 0.005 * sliderAdjSpeed.Value));
 
             //BackgroundDisplay.Children.Remove(myPolygon);
@@ -2185,11 +1815,10 @@ namespace TrackingFlight_v2_0109
             //màu viền
             myPolygon.Stroke = brush;
             myPolygon.StrokeThickness = 1;
-            //Xac định tọa độ -2060, -491
-            //myPolygon.Margin = new Windows.UI.Xaml.Thickness(-2338 + xmin * 2, -786 + 2 * ymin, 0, 0);
-            //myPolygon.Margin = new Windows.UI.Xaml.Thickness(-2158 + myPolygon.Width, -600 + myPolygon.Height, 0, 0);
-            myPolygon.Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + xmax + xmin, -800 + dConvertToTabletY + ymax + ymin, 0, 0);
-            //myPolygon.Margin = new Windows.UI.Xaml.Thickness(-2250 , -486, 0, 0);
+            myPolygon.HorizontalAlignment = HorizontalAlignment.Left;
+            myPolygon.VerticalAlignment = VerticalAlignment.Top;
+            //Quá trình khảo sát y và tính sai số
+            myPolygon.Margin = new Windows.UI.Xaml.Thickness(xmin, ymin, 0, 0);
             BackgroundDisplay.Children.Add(myPolygon);
 
 
@@ -2219,9 +1848,9 @@ namespace TrackingFlight_v2_0109
             //Draw
 
             PointCollection myPointCollection = new PointCollection();
-            myPointCollection.Add(new Point((x1 - xmin), (y1 - ymin)));
-            myPointCollection.Add(new Point(x2 - xmin, y2 - ymin));
-            myPointCollection.Add(new Point(x3 - xmin, y3 - ymin));
+            myPointCollection.Add(new Point(x1, y1));
+            myPointCollection.Add(new Point(x2, y2));
+            myPointCollection.Add(new Point(x3, y3));
             //myPointCollection.Add(new Point(0.025, 0.005 * sliderAdjSpeed.Value));
             //Polygon myPolygonAutoRemove = new Polygon();
             BackgroundDisplay.Children.Remove(myPolygonAutoRemove);
@@ -2235,10 +1864,10 @@ namespace TrackingFlight_v2_0109
             myPolygonAutoRemove.StrokeThickness = 1;
             //Xac định tọa độ -1856, -491 là dời về 0, 0
             //quá trình khảo sát trong vở
-            //myPolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(-2158 + myPolygonAutoRemove.Width - (200 - 2 * xmin), -600 + myPolygonAutoRemove.Height, 0, 0);
-            //myPolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(-2358 +  dConvertToTabletX + xmax + xmin, -600 + myPolygonAutoRemove.Height + 4 * sliderAdjSpeed.Value, 0, 0);
+            myPolygonAutoRemove.HorizontalAlignment = HorizontalAlignment.Left;
+            myPolygonAutoRemove.VerticalAlignment = VerticalAlignment.Top;
             //Quá trình khảo sát y và tính sai số
-            myPolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + xmax + xmin, -800 + dConvertToTabletY + ymax + ymin, 0, 0);
+            myPolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(xmin, ymin, 0, 0);
             //myPolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(-2060, -491, 0, 0);
             BackgroundDisplay.Children.Add(myPolygonAutoRemove);
 
@@ -2269,9 +1898,9 @@ namespace TrackingFlight_v2_0109
             //Draw
 
             PointCollection myPointCollection = new PointCollection();
-            myPointCollection.Add(new Point((x1 - xmin), (y1 - ymin)));
-            myPointCollection.Add(new Point(x2 - xmin, y2 - ymin));
-            myPointCollection.Add(new Point(x3 - xmin, y3 - ymin));
+            myPointCollection.Add(new Point(x1, y1));
+            myPointCollection.Add(new Point(x2, y2));
+            myPointCollection.Add(new Point(x3, y3));
             //myPointCollection.Add(new Point(0.025, 0.005 * sliderAdjSpeed.Value));
             //Polygon myPolygonAutoRemove_Alt = new Polygon();
             BackgroundDisplay.Children.Remove(myPolygonAutoRemove_Alt);
@@ -2285,10 +1914,10 @@ namespace TrackingFlight_v2_0109
             myPolygonAutoRemove_Alt.StrokeThickness = 1;
             //Xac định tọa độ -1856, -491 là dời về 0, 0
             //quá trình khảo sát trong vở
-            //myPolygonAutoRemove_Alt.Margin = new Windows.UI.Xaml.Thickness(-2158 + myPolygonAutoRemove_Alt.Width - (200 - 2 * xmin), -600 + myPolygonAutoRemove_Alt.Height, 0, 0);
-            //myPolygonAutoRemove_Alt.Margin = new Windows.UI.Xaml.Thickness(-2358 +  dConvertToTabletX + xmax + xmin, -600 + myPolygonAutoRemove_Alt.Height + 4 * sliderAdjSpeed.Value, 0, 0);
+            myPolygonAutoRemove_Alt.HorizontalAlignment = HorizontalAlignment.Left;
+            myPolygonAutoRemove_Alt.VerticalAlignment = VerticalAlignment.Top;
             //Quá trình khảo sát y và tính sai số
-            myPolygonAutoRemove_Alt.Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + xmax + xmin, -800 + dConvertToTabletY + ymax + ymin, 0, 0);
+            myPolygonAutoRemove_Alt.Margin = new Windows.UI.Xaml.Thickness(xmin, ymin, 0, 0);
             //myPolygonAutoRemove_Alt.Margin = new Windows.UI.Xaml.Thickness(-2060, -491, 0, 0);
             BackgroundDisplay.Children.Add(myPolygonAutoRemove_Alt);
 
@@ -2329,13 +1958,11 @@ namespace TrackingFlight_v2_0109
             dTriAngle_P3_Y = -dBalance_R_Into * (double)Math.Sin(temp3) + dBalance_mid_Y;
             //Vẽ tam giác qua 3 điểm
             RollAngle_PolygonAutoRemove(dTriAngle_P1_X, dTriAngle_P1_Y, dTriAngle_P2_X, dTriAngle_P2_Y, dTriAngle_P3_X, dTriAngle_P3_Y);
-            //Point[] points = { new Point((int)dTriAngle_P1_X, (int)dTriAngle_P1_Y), new Point
-            //        ((int)dTriAngle_P2_X, (int)dTriAngle_P2_Y), new Point((int)dTriAngle_P3_X, (int)dTriAngle_P3_Y) };
-            //G_TriAngle.dillPolygon(Blush_TriAngle, points);
-            //Ve tai 45, 135
-
+            //----------------------------------------------------------------------
+            //add image triagle
 
         }
+
         //*********************************************************************************************
         //Hoàn thanh vẽ display cảm biến gia tốc
         Polygon myRollAngle_PolygonAutoRemove = new Polygon();
@@ -2359,9 +1986,9 @@ namespace TrackingFlight_v2_0109
             //Draw
 
             PointCollection myPointCollection = new PointCollection();
-            myPointCollection.Add(new Point((x1 - xmin), (y1 - ymin)));
-            myPointCollection.Add(new Point(x2 - xmin, y2 - ymin));
-            myPointCollection.Add(new Point(x3 - xmin, y3 - ymin));
+            myPointCollection.Add(new Point(x1, y1));
+            myPointCollection.Add(new Point(x2, y2));
+            myPointCollection.Add(new Point(x3, y3));
             //myPointCollection.Add(new Point(0.025, 0.005 * sliderAdjSpeed.Value));
             //Polygon myRollAngle_PolygonAutoRemove = new Polygon();
             BackgroundDisplay.Children.Remove(myRollAngle_PolygonAutoRemove);
@@ -2370,10 +1997,9 @@ namespace TrackingFlight_v2_0109
             myRollAngle_PolygonAutoRemove.Height = (ymax - ymin);
             //Xac định tọa độ -1856, -491 là dời về 0, 0
             //quá trình khảo sát trong vở
-            //myRollAngle_PolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(-2158 + myRollAngle_PolygonAutoRemove.Width - (200 - 2 * xmin), -600 + myRollAngle_PolygonAutoRemove.Height, 0, 0);
-            //myRollAngle_PolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(-2358 +  dConvertToTabletX + xmax + xmin, -600 + myRollAngle_PolygonAutoRemove.Height + 4 * sliderAdjSpeed.Value, 0, 0);
-            //Quá trình khảo sát y và tính sai số
-            myRollAngle_PolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + xmax + xmin, -800 + dConvertToTabletY + ymax + ymin, 0, 0);
+            myRollAngle_PolygonAutoRemove.HorizontalAlignment = HorizontalAlignment.Left;
+            myRollAngle_PolygonAutoRemove.VerticalAlignment = VerticalAlignment.Top;
+            myRollAngle_PolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(xmin, ymin, 0, 0);
             //myRollAngle_PolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(-2060, -491, 0, 0);
             BackgroundDisplay.Children.Add(myRollAngle_PolygonAutoRemove);
 
@@ -2400,11 +2026,11 @@ namespace TrackingFlight_v2_0109
             RetangleAutoRemove3.Height = height;
             RetangleAutoRemove3.Width = width;
             RetangleAutoRemove3.Opacity = Opacity;
+            RetangleAutoRemove3.HorizontalAlignment = HorizontalAlignment.Left;
+            RetangleAutoRemove3.VerticalAlignment = VerticalAlignment.Top;
             //Xac định tọa độ
             RetangleAutoRemove3.Margin = new Windows.UI.Xaml.Thickness(
-                    -2358 + dConvertToTabletX + RetangleAutoRemove3.Width + StartX * 2, -798 + dConvertToTabletY + RetangleAutoRemove3.Height + StartY * 2, 0, 0);
-            //TestRetangle.Margin = new Windows.UI.Xaml.Thickness(
-            //-2358 + TestRetangle.Width + x * 2, -200, 0, 0);
+                    StartX, StartY, 0, 0);
             BackgroundDisplay.Children.Add(RetangleAutoRemove3);
         }
         //********************************************************************************
@@ -2455,10 +2081,11 @@ namespace TrackingFlight_v2_0109
             Ret_AutoRemove[index].Height = height;
             Ret_AutoRemove[index].Width = width;
             Ret_AutoRemove[index].Opacity = Opacity;
+            Ret_AutoRemove[index].HorizontalAlignment = HorizontalAlignment.Left;
+            Ret_AutoRemove[index].VerticalAlignment = VerticalAlignment.Top;
             //Xac định tọa độ
             Ret_AutoRemove[index].Margin = new Windows.UI.Xaml.Thickness(
-                    -2358 + dConvertToTabletX + Ret_AutoRemove[index].Width + StartX * 2, -798 + dConvertToTabletY + Ret_AutoRemove[index].Height + StartY * 2, 0, 0);
-            //TestRetangle.Margin = new Windows.UI.Xaml.Thickness(
+                                            StartX, StartY, 0, 0);            //TestRetangle.Margin = new Windows.UI.Xaml.Thickness(
             //-2358 + TestRetangle.Width + x * 2, -200, 0, 0);
             BackgroundDisplay.Children.Add(Ret_AutoRemove[index]);
 
@@ -2591,7 +2218,7 @@ namespace TrackingFlight_v2_0109
             TxtDesignAutoRemove.Foreground = Blush;
             TxtDesignAutoRemove.Opacity = Opacity;
             //position of text left, top, right, bottom
-            TxtDesignAutoRemove.Margin = new Windows.UI.Xaml.Thickness(StartX - 70, StartY, 0, 0);
+            TxtDesignAutoRemove.Margin = new Windows.UI.Xaml.Thickness(StartX, StartY, 0, 0);
             BackgroundDisplay.Children.Add(TxtDesignAutoRemove);
         }
         //*****************************************************************
@@ -2836,11 +2463,12 @@ namespace TrackingFlight_v2_0109
             Compass_Ret_AutoRemove[index].Height = height;
             Compass_Ret_AutoRemove[index].Width = width;
             Compass_Ret_AutoRemove[index].Opacity = Opacity;
+            Compass_Ret_AutoRemove[index].HorizontalAlignment = HorizontalAlignment.Left;
+            Compass_Ret_AutoRemove[index].VerticalAlignment = VerticalAlignment.Top;
             //Xac định tọa độ
             Compass_Ret_AutoRemove[index].Margin = new Windows.UI.Xaml.Thickness(
-                    -2358 + dConvertToTabletX + Compass_Ret_AutoRemove[index].Width + StartX * 2, -798 + dConvertToTabletY + Compass_Ret_AutoRemove[index].Height + StartY * 2, 0, 0);
-            //TestRetangle.Margin = new Windows.UI.Xaml.Thickness(
-            //-2358 + TestRetangle.Width + x * 2, -200, 0, 0);
+                    StartX, StartY, 0, 0);
+
             BackgroundDisplay.Children.Add(Compass_Ret_AutoRemove[index]);
 
         }
@@ -2893,9 +2521,9 @@ namespace TrackingFlight_v2_0109
             //Draw
 
             PointCollection myPointCollection = new PointCollection();
-            myPointCollection.Add(new Point((x1 - xmin), (y1 - ymin)));
-            myPointCollection.Add(new Point(x2 - xmin, y2 - ymin));
-            myPointCollection.Add(new Point(x3 - xmin, y3 - ymin));
+            myPointCollection.Add(new Point(x1, y1));
+            myPointCollection.Add(new Point(x2, y2));
+            myPointCollection.Add(new Point(x3, y3));
             //myPointCollection.Add(new Point(0.025, 0.005 * sliderAdjSpeed.Value));
             //Polygon Compass_PolygonAutoRemove = new Polygon();
             BackgroundDisplay.Children.Remove(Compass_PolygonAutoRemove);
@@ -2907,12 +2535,11 @@ namespace TrackingFlight_v2_0109
             Compass_PolygonAutoRemove.Stroke = BlushOfTriAngle;
             Compass_PolygonAutoRemove.Opacity = Opacity;
             Compass_PolygonAutoRemove.StrokeThickness = 1;
-            //Xac định tọa độ -1856, -491 là dời về 0, 0
-            //quá trình khảo sát trong vở
-            //Compass_PolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(-2158 + Compass_PolygonAutoRemove.Width - (200 - 2 * xmin), -600 + Compass_PolygonAutoRemove.Height, 0, 0);
-            //Compass_PolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(-2358 +  dConvertToTabletX + xmax + xmin, -600 + Compass_PolygonAutoRemove.Height + 4 * sliderAdjSpeed.Value, 0, 0);
+            Compass_PolygonAutoRemove.HorizontalAlignment = HorizontalAlignment.Left;
+            Compass_PolygonAutoRemove.VerticalAlignment = VerticalAlignment.Top;
+
             //Quá trình khảo sát y và tính sai số
-            Compass_PolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + xmax + xmin, -800 + dConvertToTabletY + ymax + ymin, 0, 0);
+            Compass_PolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(xmin, ymin, 0, 0);
             //Compass_PolygonAutoRemove.Margin = new Windows.UI.Xaml.Thickness(-2060, -491, 0, 0);
             BackgroundDisplay.Children.Add(Compass_PolygonAutoRemove);
 
@@ -2962,11 +2589,11 @@ namespace TrackingFlight_v2_0109
             //mặc định ảnh có chiều dài và chiều rộng là vô cùng
             //bitmapImage.PixelHeight
             //img_FliCom_Out.sca
-            img_FliCom_Out.Stretch = Stretch.Uniform;
-            img_FliCom_Out.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Center;
-            img_FliCom_Out.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Center;
+            //img_FliCom_Out.Stretch = Stretch.Uniform;
+            img_FliCom_Out.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Left;
+            img_FliCom_Out.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Top;
             img_FliCom_Out.Opacity = 0.8;
-            img_FliCom_Out.Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + CenterX * 2, -798 + dConvertToTabletY + CenterY * 2, 0, 0);
+            img_FliCom_Out.Margin = new Windows.UI.Xaml.Thickness(CenterX - 125, CenterY - 125, 0, 0);
             BackgroundDisplay.Children.Add(img_FliCom_Out);
 
         }
@@ -2996,334 +2623,6 @@ namespace TrackingFlight_v2_0109
             Tb_Compass_Display_Angle[0].Text = (Math.Round(angle_Yaw, 0)).ToString() + '°';
         }
 
-        //**************************************************************************
-        //Ngày 20/12/2015 Set up góc Pitch
-        /// <summary>
-        /// Vẽ góc Pitch, Roll của máy bay
-        /// Với StartX, StartY là điểm trung tâm
-        /// h1: khoảng cách giữa 2 đường
-        /// </summary>
-        /// <param name="Pitch"></param>
-        /// <param name="StartX"></param>
-        /// <param name=""></param>
-        void PitchAngle_Setup(double Pitch, double Roll, double StartX, double StartY, double h1)
-        {
-
-
-            //*************************************************************************
-            //Cách 2, giữ nguyên đường màu vàng mỗi lần góc Pitch thay đổi thì toàn bộ các đường song song 
-            //chạy xuống hoặc chạy lên
-            //h1 <--> 10 degree: (- Pitch * h1 / 10)
-            double R1 = 40, R2;//R1, R2 là độ dài nửa đường Vẽ đường vẽ có ghi số 5, 10 và đường vẽ k ghi số
-            double x1, x2, y1, y2;//các điểm của đường vẽ từ x1, y1 đến x2, y2
-            int indexLine = 0;
-            SolidColorBrush WhitePen = new SolidColorBrush(Colors.Green);
-            for (int j_setup = 0; j_setup < 12; j_setup++)
-                Pitch_LineAutoRemove_setup(j_setup, WhitePen, 2);
-            for (double index = -2 * h1 + Pitch * h1 / 10; index <= 2 * h1 + Pitch * h1 / 10; index += h1)
-            {
-                x1 = StartX - index * Math.Sin(Math.PI * Roll / 180) - R1 * Math.Cos(Math.PI * Roll / 180);
-                y1 = StartY + index * Math.Cos(Math.PI * Roll / 180) - R1 * Math.Sin(Math.PI * Roll / 180);
-                x2 = StartX - index * Math.Sin(Math.PI * Roll / 180) + R1 * Math.Cos(Math.PI * Roll / 180);
-                y2 = StartY + index * Math.Cos(Math.PI * Roll / 180) + R1 * Math.Sin(Math.PI * Roll / 180);
-                Pitch_LineAutoRemove(indexLine, x1, y1, x2, y2);
-                indexLine++;
-            }
-            //Vẽ các đường không ghi số
-            R2 = R1 / 2;
-            for (double index = -1.5 * h1 + (Pitch * h1 / 10); index <= 1.5 * h1 + (Pitch * h1 / 10); index += h1)
-            {
-                x1 = StartX - index * Math.Sin(Math.PI * Roll / 180) - R2 * Math.Cos(Math.PI * Roll / 180);
-                y1 = StartY + index * Math.Cos(Math.PI * Roll / 180) - R2 * Math.Sin(Math.PI * Roll / 180);
-                x2 = StartX - index * Math.Sin(Math.PI * Roll / 180) + R2 * Math.Cos(Math.PI * Roll / 180);
-                y2 = StartY + index * Math.Cos(Math.PI * Roll / 180) + R2 * Math.Sin(Math.PI * Roll / 180);
-                Pitch_LineAutoRemove(indexLine, x1, y1, x2, y2);
-                indexLine++;
-            }
-            //Vẽ đường chân trời qua điểm 0, 0
-            //Chỉ số là 9 màu xanh ngày 29/02/2016 bỏ Vẽ đường chân trời qua điểm 0, 0
-            /*
-            R2 = StartX;
-            x1 = StartX - (Pitch * h1 / 10) * Math.Sin(Math.PI * Roll / 180) - R2 * Math.Cos(Math.PI * Roll / 180);
-            y1 = StartY + (Pitch * h1 / 10) * Math.Cos(Math.PI * Roll / 180) - R2 * Math.Sin(Math.PI * Roll / 180);
-            x2 = StartX - (Pitch * h1 / 10) * Math.Sin(Math.PI * Roll / 180) + R2 * Math.Cos(Math.PI * Roll / 180);
-            y2 = StartY + (Pitch * h1 / 10) * Math.Cos(Math.PI * Roll / 180) + R2 * Math.Sin(Math.PI * Roll / 180);
-            Pitch_LineAutoRemove(indexLine, WhitePen, 2, x1, y1, x2, y2);
-            */
-            indexLine++;//đổi chỉ số đường khác cho đường tiếp theo
-                        //Vẽ String ở hai bên
-                        //Vẽ String
-                        //Ghi chữ
-                        //-10 là độ dời chữ lên trên
-                        //+ 22 là dời sang trái
-                        //x1 = StartX - (-2 * h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) - (R1 + 22) * Math.Cos(Math.PI * Roll / 180);
-                        //y1 = StartY + (-2 * h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) - (R1 + 22) * Math.Sin(Math.PI * Roll / 180);
-                        //x2 = StartX - (-2 * h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) + (R1 + 2) * Math.Cos(Math.PI * Roll / 180);
-                        //y2 = StartY + (-2 * h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) + (R1 + 2) * Math.Sin(Math.PI * Roll / 180);
-                        //Pitch_SetupString_AutoRemove(0, Roll, "20", 16, WhitePen, x1, y1, 1);
-                        //Pitch_SetupString_AutoRemove(1, Roll, "20", 16, WhitePen, x2, y2, 1);
-                        ////********************
-                        //x1 = StartX - (-h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) - (R1 + 22) * Math.Cos(Math.PI * Roll / 180);
-                        //y1 = StartY + (-h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) - (R1 + 22) * Math.Sin(Math.PI * Roll / 180);
-                        //x2 = StartX - (-h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) + (R1 + 2) * Math.Cos(Math.PI * Roll / 180);
-                        //y2 = StartY + (-h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) + (R1 + 2) * Math.Sin(Math.PI * Roll / 180);
-                        //Pitch_SetupString_AutoRemove(2, Roll, "10", 16, WhitePen, x1, y1, 1);
-                        //Pitch_SetupString_AutoRemove(3, Roll, "10", 16, WhitePen, x2, y2, 1);
-                        ////********************
-                        //x1 = StartX - ((Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) - (R1 + 15) * Math.Cos(Math.PI * Roll / 180);
-                        //y1 = StartY + ((Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) - (R1 + 15) * Math.Sin(Math.PI * Roll / 180);
-                        //x2 = StartX - ((Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) + (R1 + 2) * Math.Cos(Math.PI * Roll / 180);
-                        //y2 = StartY + ((Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) + (R1 + 2) * Math.Sin(Math.PI * Roll / 180);
-                        //Pitch_SetupString_AutoRemove(4, Roll, "0", 16, WhitePen, x1, y1, 1);
-                        //Pitch_SetupString_AutoRemove(5, Roll, "0", 16, WhitePen, x2, y2, 1);
-                        ////********************
-                        //x1 = StartX - (h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) - (R1 + 22) * Math.Cos(Math.PI * Roll / 180);
-                        //y1 = StartY + (h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) - (R1 + 22) * Math.Sin(Math.PI * Roll / 180);
-                        //x2 = StartX - (h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) + (R1 + 2) * Math.Cos(Math.PI * Roll / 180);
-                        //y2 = StartY + (h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) + (R1 + 2) * Math.Sin(Math.PI * Roll / 180);
-                        //Pitch_SetupString_AutoRemove(6, Roll, "10", 16, WhitePen, x1, y1, 1);
-                        //Pitch_SetupString_AutoRemove(7, Roll, "10", 16, WhitePen, x2, y2, 1);
-                        ////********************
-                        //x1 = StartX - (2 * h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) - (R1 + 22) * Math.Cos(Math.PI * Roll / 180);
-                        //y1 = StartY + (2 * h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) - (R1 + 22) * Math.Sin(Math.PI * Roll / 180);
-                        //x2 = StartX - (2 * h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) + (R1 + 2) * Math.Cos(Math.PI * Roll / 180);
-                        //y2 = StartY + (2 * h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) + (R1 + 2) * Math.Sin(Math.PI * Roll / 180);
-                        //Pitch_SetupString_AutoRemove(8, Roll, "20", 16, WhitePen, x1, y1, 1);
-                        //Pitch_SetupString_AutoRemove(9, Roll, "20", 16, WhitePen, x2, y2, 1);
-                        //Vẽ string ở bên phải
-            x1 = StartX - (-2 * h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) - (R1 + 22) * Math.Cos(Math.PI * Roll / 180);
-            y1 = StartY + (-2 * h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) - (R1 + 22) * Math.Sin(Math.PI * Roll / 180);
-            x2 = StartX - (-2 * h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) + (R1 + 2) * Math.Cos(Math.PI * Roll / 180);
-            y2 = StartY + (-2 * h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) + (R1 + 2) * Math.Sin(Math.PI * Roll / 180);
-            //Pitch_SetupString_AutoRemove(0, Roll, "20", 16, WhitePen, x1, y1, 1);
-            Pitch_SetupString_AutoRemove(1, Roll, "20", 16, WhitePen, x2, y2, 1);
-            //********************
-            x1 = StartX - (-h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) - (R1 + 22) * Math.Cos(Math.PI * Roll / 180);
-            y1 = StartY + (-h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) - (R1 + 22) * Math.Sin(Math.PI * Roll / 180);
-            x2 = StartX - (-h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) + (R1 + 2) * Math.Cos(Math.PI * Roll / 180);
-            y2 = StartY + (-h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) + (R1 + 2) * Math.Sin(Math.PI * Roll / 180);
-            //Pitch_SetupString_AutoRemove(2, Roll, "10", 16, WhitePen, x1, y1, 1);
-            Pitch_SetupString_AutoRemove(3, Roll, "10", 16, WhitePen, x2, y2, 1);
-            //********************
-            x1 = StartX - ((Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) - (R1 + 15) * Math.Cos(Math.PI * Roll / 180);
-            y1 = StartY + ((Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) - (R1 + 15) * Math.Sin(Math.PI * Roll / 180);
-            x2 = StartX - ((Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) + (R1 + 2) * Math.Cos(Math.PI * Roll / 180);
-            y2 = StartY + ((Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) + (R1 + 2) * Math.Sin(Math.PI * Roll / 180);
-            //Pitch_SetupString_AutoRemove(4, Roll, "0", 16, WhitePen, x1, y1, 1);
-            Pitch_SetupString_AutoRemove(5, Roll, "0", 16, WhitePen, x2, y2, 1);
-            //********************
-            x1 = StartX - (h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) - (R1 + 22) * Math.Cos(Math.PI * Roll / 180);
-            y1 = StartY + (h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) - (R1 + 22) * Math.Sin(Math.PI * Roll / 180);
-            x2 = StartX - (h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) + (R1 + 2) * Math.Cos(Math.PI * Roll / 180);
-            y2 = StartY + (h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) + (R1 + 2) * Math.Sin(Math.PI * Roll / 180);
-            //Pitch_SetupString_AutoRemove(6, Roll, "10", 16, WhitePen, x1, y1, 1);
-            Pitch_SetupString_AutoRemove(7, Roll, "10", 16, WhitePen, x2, y2, 1);
-            //********************
-            x1 = StartX - (2 * h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) - (R1 + 22) * Math.Cos(Math.PI * Roll / 180);
-            y1 = StartY + (2 * h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) - (R1 + 22) * Math.Sin(Math.PI * Roll / 180);
-            x2 = StartX - (2 * h1 + (Pitch * h1 / 10) - 10) * Math.Sin(Math.PI * Roll / 180) + (R1 + 2) * Math.Cos(Math.PI * Roll / 180);
-            y2 = StartY + (2 * h1 + (Pitch * h1 / 10) - 10) * Math.Cos(Math.PI * Roll / 180) + (R1 + 2) * Math.Sin(Math.PI * Roll / 180);
-            //Pitch_SetupString_AutoRemove(8, Roll, "20", 16, WhitePen, x1, y1, 1);
-            Pitch_SetupString_AutoRemove(9, Roll, "20", 16, WhitePen, x2, y2, 1);
-
-            //Ngày 21/12/2015 Vẽ góc Pitch
-            //h1 <--> 10 degree: (- Pitch * h1 / 10)
-            R2 = 2 * R1;
-            x1 = StartX - R2;
-            y1 = StartY;
-            //Vẽ đường ngang của Pitch bằng line
-            //Pitch_LineAutoRemove(indexLine, new SolidColorBrush(Colors.Yellow), 8, x1, y1, 16, WhitePen, x2, y2, 1);
-            //Bằng Rectangle tốt hơn
-            Pitch_Draw_Rect_AutoRemove(0, new SolidColorBrush(Colors.Yellow), x1 - 30, y1 - 3, 30, 8, 1);
-            //Vẽ một chấm đỏ hình chữ nhật ngay trung tâm
-            Pitch_Draw_Rect_AutoRemove(2, new SolidColorBrush(Colors.Red), StartX - 4, y1 - 3, 8, 8, 1);
-            //Vẽ mũi tên hình tam giác tại đầu mũi đường cho đẹp
-            Pitch_ArrowAuto_Remove(0, new SolidColorBrush(Colors.Yellow), x1, y1 - 2, x1, y1 + 6, x1 + 8, y1 + 2, 1);
-
-            indexLine++;
-            //*****************************************
-            x1 = StartX + R2;
-            y1 = StartY;
-
-            //Pitch_LineAutoRemove(indexLine, new SolidColorBrush(Colors.Yellow), 8, x1, y1, x2, y2);
-            //Bằng Rectangle tốt hơn
-            Pitch_Draw_Rect_AutoRemove(1, new SolidColorBrush(Colors.Yellow), x1, y1 - 3, 30, 8, 1);
-            //Vẽ mũi tên hình tam giác tại đầu mũi đường cho đẹp
-            Pitch_ArrowAuto_Remove(1, new SolidColorBrush(Colors.Yellow), x1, y1 - 2, x1, y1 + 6, x1 - 8, y1 + 2, 1);
-
-            //
-
-        }
-        //************************************************************************************
-        //**************************************************************************
-        //Ngày 20/12/2015 Vẽ góc Pitch
-
-        /// <summary>
-        /// Vẽ Line Auto Remove cho Pitch
-        /// </summary>
-        /// <param name="index"></param>
-        /// <param name="ColorOfLine"></param>
-        /// <param name="SizeOfLine"></param>
-        void Pitch_LineAutoRemove_setup(int index, SolidColorBrush ColorOfLine, double SizeOfLine)
-        {
-            //BackgroundDisplay.Children.Remove(LinePitchAutoRemove[index]);
-            LinePitchAutoRemove[index] = new Line();
-            //Điểm bắt đầu trên cùng có tọa độ 0, 0
-            //Line LinePitchAutoRemove[index] = new Line();
-            //BackgroundDisplay.Children.Remove(LinePitchAutoRemove[index]);
-            //LinePitchAutoRemove[index].Fill = new SolidColorBrush(Colors.Green);
-            LinePitchAutoRemove[index].Stroke = ColorOfLine;
-            //LinePitchAutoRemove[index].
-            //LinePitchAutoRemove[index].Height = 10;
-            //LinePitchAutoRemove[index].Width = 10;
-
-            LinePitchAutoRemove[index].StrokeThickness = SizeOfLine;
-            //Xac định tọa độ
-            //LinePitchAutoRemove[index].Margin = new Windows.UI.Xaml.Thickness(-1500, -200, 0, 0);
-            //BackgroundDisplay.Children.Add(LinePitchAutoRemove[index]);
-
-        }
-        Line[] LinePitchAutoRemove = new Line[12];
-        /// <summary>
-        /// Vẽ đường thẳng từ (x1, y1) đến (x2, y2)
-        /// Bút vẽ là ColorOfLine
-        /// độ rông là SizeOfLine
-        /// index: chỉ số của đường
-        /// </summary>
-        /// <param name="x1"></param>
-        /// <param name="y1"></param>
-        /// <param name="x2"></param>
-        /// <param name="y2"></param>
-        void Pitch_LineAutoRemove(int index, double x1, double y1, double x2, double y2)
-        {
-            BackgroundDisplay.Children.Remove(LinePitchAutoRemove[index]);
-            //LinePitchAutoRemove[index] = new Line();
-            //Điểm bắt đầu trên cùng có tọa độ 0, 0
-            //Line LinePitchAutoRemove[index] = new Line();
-            //BackgroundDisplay.Children.Remove(LinePitchAutoRemove[index]);
-            //LinePitchAutoRemove[index].Fill = new SolidColorBrush(Colors.Green);
-            //LinePitchAutoRemove[index].Stroke = ColorOfLine;
-            //LinePitchAutoRemove[index].
-            //LinePitchAutoRemove[index].Height = 10;
-            //LinePitchAutoRemove[index].Width = 10;
-            LinePitchAutoRemove[index].X1 = x1;
-            LinePitchAutoRemove[index].Y1 = y1;
-            LinePitchAutoRemove[index].X2 = x2;
-            LinePitchAutoRemove[index].Y2 = y2;
-            //LinePitchAutoRemove[index].StrokeThickness = SizeOfLine;
-            //Xac định tọa độ
-            //LinePitchAutoRemove[index].Margin = new Windows.UI.Xaml.Thickness(-1500, -200, 0, 0);
-            BackgroundDisplay.Children.Add(LinePitchAutoRemove[index]);
-
-        }
-        //**************************************************************************
-        //*****************************************************************
-        //Ngày 20/12/2015 bước đột phá tạo một mảng TextBlock Auto remove
-        TextBlock[] Tb_Pitch = new TextBlock[10];
-        //Có căn lề phải
-        //Vẽ trong hình chữ nhật
-        //**************************************************************************************************
-        /// <summary>
-        /// Chuỗi đưa vào drawString
-        /// Font là Arial, 
-        /// Size drawFont
-        /// Color Blush
-        /// Vị trí StartX, StartY
-        /// Set up init location for string
-        /// index: index of string
-        /// Roll góc nghiêng của string
-        /// </summary>
-        /// <param name="drawString"></param>
-        /// <param name="drawFont"></param>
-        /// <param name="drawBrush"></param>
-        /// <param name="StartX"></param>
-        /// <param name="StartY"></param>
-        public void Pitch_SetupString_AutoRemove(int index, double Roll, string drawString, double SizeOfText, SolidColorBrush Blush,
-            double StartX, double StartY, double Opacity)
-        {
-            //create graphic text block design text
-            //TextBlock Tb_Pitch[index] = new TextBlock();
-            //chiều dài rộng của khung chứa text
-            //Tb_Pitch[index].Height = HeightOfBlock;
-            //Tb_Pitch[index].Width = WidthOfBlock;
-            //canh lề, left, right, center
-            BackgroundDisplay.Children.Remove(Tb_Pitch[index]);
-            Tb_Pitch[index] = new TextBlock();
-            Tb_Pitch[index].HorizontalAlignment = HorizontalAlignment.Left;
-            Tb_Pitch[index].VerticalAlignment = VerticalAlignment.Top;
-            //Tb_Pitch[index].Margin = 
-            //
-            //đảo chữ
-            Tb_Pitch[index].TextWrapping = Windows.UI.Xaml.TextWrapping.NoWrap;
-            Tb_Pitch[index].Text = drawString;
-            Tb_Pitch[index].FontSize = SizeOfText;
-            Tb_Pitch[index].FontFamily = new FontFamily("Arial");
-            //Tb_Pitch[index].FontStyle = "Arial";
-            //Tb_Pitch[index].FontStretch
-            //color text có độ đục
-            //Tb_Pitch[index].Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(200, 0, 255, 0));
-            Tb_Pitch[index].Foreground = Blush;
-            Tb_Pitch[index].Opacity = Opacity;
-            //Quay Textblock để quay chữ
-            Tb_Pitch[index].RenderTransform = new RotateTransform()
-            {
-                Angle = Roll,
-                //CenterX = 25, //The prop name maybe mistyped 
-                //CenterY = 25 //The prop name maybe mistyped 
-            };
-            //position of text left, top, right, bottom
-            Tb_Pitch[index].Margin = new Windows.UI.Xaml.Thickness(StartX + 2, StartY, 0, 0);
-            BackgroundDisplay.Children.Add(Tb_Pitch[index]);
-        }
-        //**********************************************************************************************
-        /// <summary>
-        /// Remove chỗi string cũ
-        /// Chuỗi đưa vào drawString
-        /// Font là Arial, 
-        /// Size drawFont
-        /// Color Blush
-        /// Vị trí StartX, StartY
-        /// Set up init location for string
-        /// index: index of string
-        /// </summary>
-        /// <param name="drawString"></param>
-        /// <param name="drawFont"></param>
-        /// <param name="drawBrush"></param>
-        /// <param name="StartX"></param>
-        /// <param name="StartY"></param>
-        public void Pitch_ChangeString_AutoRemove(int index, double Roll, string drawString,
-            double StartX, double StartY)
-        {
-            //create graphic text block design text
-            //TextBlock Tb_Pitch[index] = new TextBlock();
-            //chiều dài rộng của khung chứa text
-            //Tb_Pitch[index].Height = HeightOfBlock;
-            //Tb_Pitch[index].Width = WidthOfBlock;
-            //canh lề, left, right, center
-
-            //Tb_Pitch[index].Margin = 
-            //
-
-            BackgroundDisplay.Children.Remove(Tb_Pitch[index]);
-            //Quay Textblock để quay chữ
-            Tb_Pitch[index].RenderTransform = new RotateTransform()
-            {
-                Angle = Roll,
-                //CenterX = 25, //The prop name maybe mistyped 
-                //CenterY = 25 //The prop name maybe mistyped 
-            };
-            Tb_Pitch[index].Text = drawString;
-
-
-            //Tb_Pitch[index].FontStyle = "Arial";
-            //Tb_Pitch[index].FontStretch
-            //color text có độ đục
-            //Tb_Pitch[index].Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(200, 0, 255, 0));
-
-            //position of text left, top, right, bottom
-            Tb_Pitch[index].Margin = new Windows.UI.Xaml.Thickness(StartX + 2, StartY, 0, 0);
-            BackgroundDisplay.Children.Add(Tb_Pitch[index]);
-        }
         //*********************************************************************************************
         //************************************************************
         //Ngày 14/1/2/2015 22h39 đã hoàn thành việc vẽ tam giác đúng vị trí
@@ -3350,10 +2649,13 @@ namespace TrackingFlight_v2_0109
             //Draw
 
             PointCollection myPointCollection = new PointCollection();
-            myPointCollection.Add(new Point((x1 - xmin), (y1 - ymin)));
-            myPointCollection.Add(new Point(x2 - xmin, y2 - ymin));
-            myPointCollection.Add(new Point(x3 - xmin, y3 - ymin));
-            //myPointCollection.Add(new Point(0.025, 0.005 * sliderAdjSpeed.Value));
+            //myPointCollection.Add(new Point((x1 - xmin), (y1 - ymin)));
+            //myPointCollection.Add(new Point(x2 - xmin, y2 - ymin));
+            //myPointCollection.Add(new Point(x3 - xmin, y3 - ymin));
+
+            myPointCollection.Add(new Point(x1, y1));
+            myPointCollection.Add(new Point(x2, y2));
+            myPointCollection.Add(new Point(x3, y3));
             //Polygon Pitch_ArrowAutoRemove[index] = new Polygon();
             BackgroundDisplay.Children.Remove(Pitch_ArrowAutoRemove[index]);
             Pitch_ArrowAutoRemove[index] = new Polygon();
@@ -3367,10 +2669,10 @@ namespace TrackingFlight_v2_0109
             Pitch_ArrowAutoRemove[index].StrokeThickness = 1;
             //Xac định tọa độ -1856, -491 là dời về 0, 0
             //quá trình khảo sát trong vở
-            //Pitch_ArrowAutoRemove[index].Margin = new Windows.UI.Xaml.Thickness(-2158 + Pitch_ArrowAutoRemove[index].Width - (200 - 2 * xmin), -600 + Pitch_ArrowAutoRemove[index].Height, 0, 0);
-            //Pitch_ArrowAutoRemove[index].Margin = new Windows.UI.Xaml.Thickness(-2358 +  dConvertToTabletX + xmax + xmin, -600 + Pitch_ArrowAutoRemove[index].Height + 4 * sliderAdjSpeed.Value, 0, 0);
+            Pitch_ArrowAutoRemove[index].HorizontalAlignment = HorizontalAlignment.Left;
+            Pitch_ArrowAutoRemove[index].VerticalAlignment = VerticalAlignment.Top;
             //Quá trình khảo sát y và tính sai số
-            Pitch_ArrowAutoRemove[index].Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + xmax + xmin, -800 + dConvertToTabletY + ymax + ymin, 0, 0);
+            Pitch_ArrowAutoRemove[index].Margin = new Windows.UI.Xaml.Thickness(xmin, ymin, 0, 0);
             //Pitch_ArrowAutoRemove[index].Margin = new Windows.UI.Xaml.Thickness(-2060, -491, 0, 0);
             BackgroundDisplay.Children.Add(Pitch_ArrowAutoRemove[index]);
 
@@ -3398,9 +2700,11 @@ namespace TrackingFlight_v2_0109
             Pitch_Ret_AutoRemove[index].Height = height;
             Pitch_Ret_AutoRemove[index].Width = width;
             Pitch_Ret_AutoRemove[index].Opacity = Opacity;
+            Pitch_Ret_AutoRemove[index].HorizontalAlignment = HorizontalAlignment.Left;
+            Pitch_Ret_AutoRemove[index].VerticalAlignment = VerticalAlignment.Top;
             //Xac định tọa độ
             Pitch_Ret_AutoRemove[index].Margin = new Windows.UI.Xaml.Thickness(
-                    -2358 + dConvertToTabletX + Pitch_Ret_AutoRemove[index].Width + StartX * 2, -798 + dConvertToTabletY + Pitch_Ret_AutoRemove[index].Height + StartY * 2, 0, 0);
+                    StartX, StartY, 0, 0);
             //TestRetangle.Margin = new Windows.UI.Xaml.Thickness(
             //-2358 + TestRetangle.Width + x * 2, -200, 0, 0);
             BackgroundDisplay.Children.Add(Pitch_Ret_AutoRemove[index]);
@@ -3777,10 +3081,11 @@ namespace TrackingFlight_v2_0109
             TestRet_BackGround.Height = height;
             TestRet_BackGround.Width = width;
             TestRet_BackGround.Opacity = Opacity;
+            TestRet_BackGround.HorizontalAlignment = HorizontalAlignment.Left;
+            TestRet_BackGround.VerticalAlignment = VerticalAlignment.Top;
             //Xac định tọa độ
             TestRet_BackGround.Margin = new Windows.UI.Xaml.Thickness(
-                -2358 + dConvertToTabletX + TestRet_BackGround.Width + StartX * 2, -798 + dConvertToTabletY + TestRet_BackGround.Height + StartY * 2, 0, 0);
-            //TestRetangle.Margin = new Windows.UI.Xaml.Thickness(
+                                            StartX, StartY, 0, 0);            //TestRetangle.Margin = new Windows.UI.Xaml.Thickness(
             //-2358 + TestRetangle.Width + x * 2, -200, 0, 0);
             BackgroundDisplay.Children.Add(TestRet_BackGround);
         }
@@ -4014,68 +3319,10 @@ namespace TrackingFlight_v2_0109
 
             //imgAuto_test.RenderTransform
             imgAuto_test.Opacity = 0.5;
-            //tbShowDis.Text = imgAuto_test.Height.ToString() + " " + imgAuto_test.Width.ToString();
-            //double cutY = 200;
-            //imgAuto_test.Height = 1120;
-            //top = 560 - 100;//560 là trung tâm y của ảnh
-            //imgAuto_test.Clip = new RectangleGeometry()
 
-            //    {
-            //    Rect = new Rect(95, 460 + top, 160, 200)//các trên trung tâm y 100, dưới 100
-
-            //    };
-
-            //imgAuto_test.Transitions.
-
-            //Xoay ảnh
-            //kích thước của ảnh là (15 * myMap.ZoomLevel x 15 * myMap.ZoomLevel;);
-            //Trung tâm ảnh là (15 * myMap.ZoomLevel / 2) x (15 * myMap.ZoomLevel / 2);
-            //khi đặt map ở ở trí lat0, long0 thì chỗ đó là điểm 0, 0 của ảnh
-            //Nên để chỉnh tâm ảnh trùng vj trí lat0, long0 thì phỉ dùng margin
-            //dời ảnh lên trên 1 nửa chiều dài,
-            //dời ảnh sang trái 1 nửa chiều rộng
-            //imgAuto_test.RenderTransform = new RotateTransform()
-            //{
-
-            //    Angle = dRoll,
-            //    CenterX = 175,
-            //    //CenterX = 62, //The prop name maybe mistyped 
-            //    CenterY = 560 + top //The prop name maybe mistyped 
-            //};
-            //mặc định ảnh có chiều dài và chiều rộng là vô cùng
-            //bitmapImage.PixelHeight
-            //imgAuto_test.sca
-
-
-
-            //Geopoint PointCenterMap2 = new Geopoint(new BasicGeoposition()
-            //{
-            //    Latitude = myMap.Center.Position.Latitude + 0.001,
-            //    Longitude = myMap.Center.Position.Longitude + 0.001,
-            //    //Altitude = 200.0
-            //});
-            //myMap.Children.Add(bitmapImage);
-
-            //Windows.UI.Xaml.Controls.Maps.MapControl.SetLocation(imgAuto_test, PointCenterMap);
-            //myMap.TrySetViewBoundsAsync()
-            //Độ dài tương đối của hình so với vị trí mong muốn new Point(0.5, 0.5) không dời
-            //Windows.UI.Xaml.Controls.Maps.MapControl.SetNormalizedAnchorPoint(imgAuto_test, new Point(0.5, 0.5));
-            //myMap.Children.Add(imgAuto_test);
-            ////tbOutputText.Background.
-            //ckground.a
-            //thu bản đồ lại
-            //myMap.Height = 500;
-            //Delete các cổng com
-            //ConnectDevices.IsEnabled = false;
-            //myMap.Children.Remove(ConnectDevices);
-            //Background tên là BackgroundDisplay
-            //Khi nhấn nút chia 2 màn hình chia là 2 phần
-            //phần trái là cảm biến phần bên phải là map
-            //chỉnh lại vị trí của ảnh
-            //imgAuto_test.Margin = new Windows.UI.Xaml.Thickness(1500 - 2000, -cutY, 00, 00);
-            //đã kiểm tra ok
-            //dời lên top đơn vị thì  - 2 * top
-            imgAuto_test.Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + xCenter * 2, -798 + dConvertToTabletY + yCenter * 2 - 2 * top, 0, 0);
+            imgAuto_test.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Left;
+            imgAuto_test.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Top;
+            imgAuto_test.Margin = new Windows.UI.Xaml.Thickness(xCenter - 125, yCenter - 125 - 2 * top, 0, 0);
             BackgroundDisplay.Children.Add(imgAuto_test);
 
             //Background background_forImage = new Background();
@@ -4098,12 +3345,12 @@ namespace TrackingFlight_v2_0109
             y1 = yCenter;
             //Vẽ đường ngang của Pitch bằng line
             //Pitch_LineAutoRemove(indexLine, new SolidColorBrush(Colors.Yellow), 8, x1, y1, 16, WhitePen, x2, y2, 1);
-            //Bằng Rectangle tốt hơn
-            Pitch_Draw_Rect_AutoRemove(0, new SolidColorBrush(Colors.Yellow), x1 - 30, y1 - 3, 30, 8, 1);
+            //Vẽ hình chữ nhật cùng mũi tên nho nhỏ
+            Pitch_Draw_Rect_AutoRemove(0, new SolidColorBrush(Colors.Yellow), x1 - 30, y1 - 4, 30, 8, 1);
             //Vẽ một chấm đỏ hình chữ nhật ngay trung tâm
-            Pitch_Draw_Rect_AutoRemove(2, new SolidColorBrush(Colors.Red), xCenter - 4, y1 - 3, 8, 8, 1);
+            Pitch_Draw_Rect_AutoRemove(2, new SolidColorBrush(Colors.Red), xCenter - 4, y1 - 4, 8, 8, 1);
             //Vẽ mũi tên hình tam giác tại đầu mũi đường cho đẹp
-            Pitch_ArrowAuto_Remove(0, new SolidColorBrush(Colors.Yellow), x1, y1 - 2, x1, y1 + 6, x1 + 8, y1 + 2, 1);
+            Pitch_ArrowAuto_Remove(0, new SolidColorBrush(Colors.Yellow), x1, y1 - 4, x1, y1 + 4, x1 + 8, y1, 1);
 
             indexLine++;
             //*****************************************
@@ -4112,9 +3359,9 @@ namespace TrackingFlight_v2_0109
 
             //Pitch_LineAutoRemove(indexLine, new SolidColorBrush(Colors.Yellow), 8, x1, y1, x2, y2);
             //Bằng Rectangle tốt hơn
-            Pitch_Draw_Rect_AutoRemove(1, new SolidColorBrush(Colors.Yellow), x1, y1 - 3, 30, 8, 1);
+            Pitch_Draw_Rect_AutoRemove(1, new SolidColorBrush(Colors.Yellow), x1, y1 - 4, 30, 8, 1);
             //Vẽ mũi tên hình tam giác tại đầu mũi đường cho đẹp
-            Pitch_ArrowAuto_Remove(1, new SolidColorBrush(Colors.Yellow), x1, y1 - 2, x1, y1 + 6, x1 - 8, y1 + 2, 1);
+            Pitch_ArrowAuto_Remove(1, new SolidColorBrush(Colors.Yellow), x1, y1 - 4, x1, y1 + 4, x1 - 8, y1, 1);
 
             //
 
@@ -4136,13 +3383,6 @@ namespace TrackingFlight_v2_0109
         {
             double top, t_cut;
             t_cut = -dPitch * 4;
-            if (dPitch > 10)
-            {
-                dPitch = 10 + (dPitch - 10) / 2;
-                //t_cut = -(dPitch * 4;
-                //top = -dPitch * 2;
-            }
-            //else
 
             top = -dPitch * 4;
             //BackgroundDisplay.Children.Remove(imgAuto_test);
@@ -4156,12 +3396,6 @@ namespace TrackingFlight_v2_0109
             //imgAuto_test.Source = new BitmapImage(new Uri("ms-appx:///Assets/horizon.bmp"));
             imgAuto_test.Width = 350;//Ảnh này hình vuông nên Width = Height = min(Height, Width)
 
-            //imgAuto_test.RenderTransform
-            //imgAuto_test.Opacity = 0.6;
-            //tbShowDis.Text = imgAuto_test.Height.ToString() + " " + imgAuto_test.Width.ToString();
-            //double cutY = 200;
-            //imgAuto_test.Height = 1120;
-            //top = 560 - 100;//560 là trung tâm y của ảnh
             imgAuto_test.Clip = new RectangleGeometry()
 
             {
@@ -4187,22 +3421,17 @@ namespace TrackingFlight_v2_0109
                 CenterY = 560 + t_cut //The prop name maybe mistyped 
             };
 
-            imgAuto_test.Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + xCenter * 2, -798 + dConvertToTabletY + yCenter * 2 - 2 * top, 0, 0);
-
-            //BackgroundDisplay.Children.Add(imgAuto_test);
+            imgAuto_test.Margin = new Windows.UI.Xaml.Thickness(xCenter - 175, yCenter - 560 - top, 0, 0);
 
         }
 
         //Vẽ hiển thị của cảm biến
-        Image imgAuto_airSpeed = new Image();
 
         //Speed từ 0 đến 1000km/h
         /////////////////////////////////////////////////////////////////
         Image imSpeedFull = new Image();
         public void AirSpeed_Image_full_Setup(double dAirSpeed, double xCenter, double yCenter)
         {
-            double top = -dAirSpeed;
-            BackgroundDisplay.Children.Remove(imgAuto_airSpeed);
             //Edit size of image
             imSpeedFull.Height = 4934;
             //muốn biết kích thước thì dùng paint, kích thước trong paint;
@@ -4213,10 +3442,11 @@ namespace TrackingFlight_v2_0109
 
             //imgAuto_airSpeed.RenderTransform
             //imSpeedFull.Opacity = 1;
-
-            imSpeedFull.Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + xCenter * 2, -798 + dConvertToTabletY + yCenter * 2 - 2 * top, 0, 0);
+            imSpeedFull.HorizontalAlignment = HorizontalAlignment.Left;
+            imSpeedFull.VerticalAlignment = VerticalAlignment.Top;
+            imSpeedFull.Margin = new Windows.UI.Xaml.Thickness(xCenter, yCenter, 0, 0);
             BackgroundDisplay.Children.Add(imSpeedFull);
-            //sliderAdjSpeed.ValueChanged += sliderAdjSpeed_ValueChanged;
+
             Speed_Draw_String_setup(dAirSpeed, xCenter + 32, yCenter - 125);//ok
             //Viết chữ Speed + đơn vị km/ h
             DrawString("Speed ", 30, new SolidColorBrush(Colors.Crimson), xCenter + 32 - 80, yCenter - 125 + 250 + 5, 0.8);
@@ -4238,138 +3468,55 @@ namespace TrackingFlight_v2_0109
             //làm tròn và chặn không cho nhỏ hơn 0
             if (dAirSpeed < 0) dAirSpeed = 0;
             dAirSpeed = Math.Round(dAirSpeed, 1);
-            //yCenter = 225
-            //dAirSpeed = 00;
             double top, dAirSpeed_original = dAirSpeed, t_cut;
-            t_cut = -(-2168) - dAirSpeed * 4.16;
-            //if (dAirSpeed < 90)
+            t_cut = -dAirSpeed * 4.165;
+            top = -dAirSpeed * 4.165;
+            //Edit size of image
+            imSpeedFull.Height = 4934;//pixel
+                                      //muốn biết kích thước thì dùng paint, kích thước trong paint ;
+
+            imSpeedFull.Width = 88;
+            imSpeedFull.Clip = new RectangleGeometry()
             {
-                //dAirSpeed = dAirSpeed - 424;//Image 1
-                //top = -(dAirSpeed * 40 / 9.6);
+                Rect = new Rect(0, 4500 + t_cut, 88, 264)//các trên trung tâm y 100, dưới 100
 
-                //top = -(-1103) - dAirSpeed * 4.16;
+            };
 
-                if (dAirSpeed < 70)
-                    top = -(-2168) - dAirSpeed * 4.16;
-                else top = -(-2168) - 70 * 4.167 - (dAirSpeed - 70) * 4.167 / 2;
-
-                //top = -(-sliderAdjSpeed.Value) - 0 * 4.16;
-
-                //top = -(-1103) - dAirSpeed * 4.16; đúng từ 0 đến 100
-                //top = -(-1103) - 105.0 * 4.16 - (dAirSpeed - 105) * 4.168 / 2; chạy ok từ 105 đến hết
-                //Edit size of image
-                imSpeedFull.Height = 4934;
-                //muốn biết kích thước thì dùng paint, kích thước trong paint ;
-                //size 80 x 600;
-                //BackgroundDisplay.Children.Remove(imSpeedFull);
-                //imgAuto_test.Source = new BitmapImage(new Uri("ms-appx:///Assets/horizon.bmp"));
-                imSpeedFull.Width = 88;//Ảnh này hình vuông nên Width = Height = min(Height, Width)
-
-
-                imSpeedFull.Clip = new RectangleGeometry()
-
-                {
-                    Rect = new Rect(0, 2334 + t_cut, 88, 264)//các trên trung tâm y 100, dưới 100
-
-                };
-
-                imSpeedFull.Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + xCenter * 2, -798 + dConvertToTabletY + yCenter * 2 - 2 * top, 0, 0);
-                //BackgroundDisplay.Children.Add(imSpeedFull);
-            }
-
-
-            //Speed_Draw_Speed(dSpeed, 150, 100);
+            imSpeedFull.Margin = new Windows.UI.Xaml.Thickness(xCenter - 45, yCenter - 4635 - top, 0, 0);
 
             Speed_Draw_String_optimize(dAirSpeed_original, xCenter + 32, 100);
-
         }
         ///////////////////////////////////////////////////////////////////////////////////////////
         //*************************************************************************
         void Speed_Draw_String_setup(double Air_Speed, double PoinStart_X, double PoinStart_Y)
         {
 
-            SolidColorBrush BlushRectangle4 = new SolidColorBrush(Colors.Black);
-            SolidColorBrush BlushOfLine1 = new SolidColorBrush(Colors.White);
-            SolidColorBrush BlushOfString1 = new SolidColorBrush(Colors.White);
-
             //Tọa độ của Hình vẽ
             //Width, Height là độ rộng và cao của vạch xanh
-            double Width = 8, Height = 250;
-            //Draw BackGround độ đục là 1
-            //*************************************************************************
-            //Ve Cho mau den de ghi Airspeed
-            //Ngày 16/12/2015 15h52 đã test ok
-            /* font chu 16 rong 12 cao 16
-             * Config_Position = 12 de canh chinh vung mau den cho phu hop
-             * SizeOfString = 16 chu cao 16 rong 12
-             * chieu cao cua vùng đen 2 * Config_Position = 24
-             * Số 28 là độ rông của vùng đen bên trái, vùng đen lớn: DoRongVungDen >= (2 * độ rông của 1 chữ = 24)
-             * Số 15 là khoảng cách của chữ cách lề bên trái (bắt đầu đường gạch gạch)
-             * Bắt đầu của chữ là: i16StartStrAxisX =(Int16)(PoinStart_X + 15)
-             */
-            double SizeOfString = 24;
-            double I16FullScale = 60, So_Khoang_Chia = 6;
-            double iDoPhanGiai = I16FullScale / So_Khoang_Chia;
-            //1 ký tự rộng = SizeOfString * 3 / 4;
-            double Config_Position = 12, i16StartStrAxisX;
-            //double DoRongVungDen = Air_Speed.ToString().Length * (SizeOfString * 3 / 4);
-            double DoRongVungDen = 26;
+            double Width = 8;
+
             //Vì độ rộng của dấu . nhỏ hơn các ký tự còn lại nên ta chia 2 trường hợp
-            double DoRongVungDenRect = Air_Speed.ToString().Length * (SizeOfString * 0.6);
-            if (Air_Speed.ToString().IndexOf('.') != -1)
-            //Trong airspeed có dấu chấm
-            {
-                DoRongVungDenRect = (Air_Speed.ToString().Length - 1) * (SizeOfString * 0.6) + 5;
-                //10 là độ rông dấu chấm
-            }
-            if (Air_Speed.ToString().Length == 1)
-            //Tăng độ rộng màu đen
-            {
-                DoRongVungDenRect = 40;
-                //4 là độ rông dấu chấm
-            }
-            //Hình chữ nhật được căn lề phải
-            i16StartStrAxisX = (PoinStart_X - 41);
-            double StartXRect = (PoinStart_X - 10);
-            FillRect_AutoRemove3(BlushRectangle4, StartXRect - DoRongVungDenRect, PoinStart_Y - Config_Position - 1 +
-                (30 - Air_Speed % 10) * Height / 60, DoRongVungDenRect, Config_Position * 2, 1);
+            double DoRongVungDenRect = 62;
+
+            FillRect_AutoRemove3(new SolidColorBrush(Colors.Black), PoinStart_X - 10 - DoRongVungDenRect, PoinStart_Y + 112, DoRongVungDenRect, 24, 1);
 
             //Vẽ mũi tên
             //Ngày 16/12/2015 15h52 đã test ok
             double x1, y1, x2, y2, x3, y3;
-            x1 = i16StartStrAxisX + DoRongVungDen;
-            y1 = PoinStart_Y - Config_Position +
-                (30 - Air_Speed % 10) * Height / 60;
+            x1 = PoinStart_X - 13;
+            y1 = PoinStart_Y + 112;
             x2 = x1;
-            y2 = y1 + Config_Position * 2;
+            y2 = y1 + 24;
             x3 = PoinStart_X + Width;
             y3 = (y1 + y2) / 2;
             Draw_TriAngle_Var(x1, y1, x2, y2, x3, y3);
 
-            //ghi chu len mau den, ghi hang nghin va hang tram (Int16)Air_Speed / 100
-            //Ngày 16/12/2015 15h56 đã test ok
-            //Cỡ chữ 20 bên map là cỡ chữ 16 bên System.Drawing
-            /* cỡ chữ SizeOfString = 16;
-             * Số -12 để canh chỉnh số cho phù hợp
-             * (Int16)Air_Speed % 100: Lấy phần chục và đơn vị tìm ra vị trí phù hợp
-             * Chữ số này nằm ở nửa trên cách đầu trên cùng ((Int16)Air_Speed / 100 * 100 + 300) 1 khoảng
-             * Số 300 là 1/2 của fullScale
-             * (300 - (Int16)Air_Speed % 100)
-             * đổi qua trục tọa độ * Height / 600, 600 la fullScale
-             * Chữ bắt đầu tại Point_X - Font_X / 4, Point_Y - Font_Y / 4
-             * Trung tam là PoinStart_Y + (300 - (Int16)Air_Speed % 100) * Height / I16FullScale
-             * Bắt đầu là PoinY - 16/ 4 = Trung tam - 16 / 2. 16 là cỡ chữ theo Y,
-             * PoiY = Trung Tâm + 12;
-             */
 
             //Cỡ chữ 20 bên map là cỡ chữ 16 bên System.Drawing
             //drawFont = new Font("Arial", SizeOfString);
             //-2 là độ dời chữ vào trong thích hợp
-            DrawStringAutoRemove(Air_Speed.ToString(), SizeOfString, BlushOfString1, i16StartStrAxisX - 0,
-                                PoinStart_Y - 15 + (30 - Air_Speed % 10) * Height / I16FullScale, 1);
-
-            //Còn bên Notepad++
-            //Khó quá bỏ qua
+            DrawStringAutoRemove(Air_Speed.ToString(), 24, new SolidColorBrush(Colors.White), PoinStart_X - 111,
+                                PoinStart_Y + 110, 1);
 
         }
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -4453,10 +3600,13 @@ namespace TrackingFlight_v2_0109
 
             //imgAuto_airSpeed.RenderTransform
             imAlttitudeFull.Opacity = 1;
+            imAlttitudeFull.HorizontalAlignment = HorizontalAlignment.Left;
+            imAlttitudeFull.VerticalAlignment = VerticalAlignment.Top;
 
             imAlttitudeFull.Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + xCenter * 2, -798 + dConvertToTabletY + yCenter * 2 - 2 * top, 0, 0);
             BackgroundDisplay.Children.Add(imAlttitudeFull);
             /////////////////////////////////////////////////////////////////////////////////////////////
+
 
             SolidColorBrush BlushRectangle4 = new SolidColorBrush(Colors.Black);
             SolidColorBrush whitePen = new SolidColorBrush(Colors.White);
@@ -4493,8 +3643,7 @@ namespace TrackingFlight_v2_0109
             //Vẽ mũi tên
             double x1, y1, x2, y2, x3, y3;
             x1 = i16StartStrAxisX;
-            y1 = yCenter - Config_Position +
-                (300 - dAirSpeed % 100) * Height / 600;
+            y1 = yCenter + 112;
             x2 = x1;
             y2 = y1 + Config_Position * 2;
             x3 = xCenter - 88 / 2;
@@ -4516,8 +3665,8 @@ namespace TrackingFlight_v2_0109
              */
 
             //drawFont = new Font("Arial", SizeOfString);
-            //DrawStringAutoRemove(Air_Speed.ToString(), SizeOfString, BlushOfString1, i16StartStrAxisX - 0,
-            //PoinStart_Y - 15 + (30 - Air_Speed % 10) * Height / I16FullScale, 1);
+
+
             //Chữ trong màu đen có chỉ số là 0
             Alt_SetupString_AutoRemove(0, dAirSpeed.ToString(), SizeOfString, whitePen, xCenter - 88 / 2 + 15,
                                 yCenter - 15 + (300 - dAirSpeed % 100) * Height / I16FullScale, 1);
@@ -4536,51 +3685,23 @@ namespace TrackingFlight_v2_0109
             if (dAlttitude < 0) dAlttitude = 0;
             dAlttitude = Math.Round(dAlttitude, 1);
 
-            //yCenter = 225
-            //dAlttitude = 4000;
-            //if(TestText.Text != "")
-            //dAlttitude = Convert.ToDouble(TestText.Text);
-            double top, dAirSpeed_original = dAlttitude, t_cut;
-            t_cut = -(-1980.45) - dAlttitude * 0.416;
+            double top, t_cut;
+            t_cut = -dAlttitude * 0.4167;
+            top = -dAlttitude * 0.4167;
+            //Edit size of image
+            imAlttitudeFull.Height = 4560;
+
+            imAlttitudeFull.Width = 88;//Ảnh này hình vuông nên Width = Height = min(Height, Width)
+
+            imAlttitudeFull.Clip = new RectangleGeometry()
             {
+                Rect = new Rect(0, 4250 + t_cut, 88, 264)//các trên trung tâm y 100, dưới 100
 
-                if (dAlttitude < 1006)
-                    top = -(-1980.45) - dAlttitude * 0.416;
-                else
-                {
-                    top = -(-1980.45) - 1006 * 0.416 - (dAlttitude - 1006) * 0.416 / 2;
-                    //t_cut = -(-1980.3) - dAlttitude * 0.4167;
-                }
+            };
 
-                //else top = -(-1103) - 105.0 * 4.16 - (dAlttitude - 105) * 4.168 / 2;
-
-                //top = -(-1103) - dAirSpeed * 4.16; đúng từ 0 đến 100
-                //top = -(-1103) - 105.0 * 4.16 - (dAirSpeed - 105) * 4.168 / 2; chạy ok từ 105 đến hết
-                //Edit size of image
-                imAlttitudeFull.Height = 4560;
-                //muốn biết kích thước thì dùng paint, kích thước trong paint ;
-                //size 80 x 600;
-                //BackgroundDisplay.Children.Remove(imAlttitudeFull);
-                //imgAuto_test.Source = new BitmapImage(new Uri("ms-appx:///Assets/horizon.bmp"));
-                imAlttitudeFull.Width = 88;//Ảnh này hình vuông nên Width = Height = min(Height, Width)
-
-
-                imAlttitudeFull.Clip = new RectangleGeometry()
-
-                {
-                    Rect = new Rect(0, 2272 + t_cut, 88, 264)//các trên trung tâm y 100, dưới 100
-
-                };
-
-                imAlttitudeFull.Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + xCenter * 2, -798 + dConvertToTabletY + yCenter * 2 - 2 * top, 0, 0);
-                //BackgroundDisplay.Children.Add(imAlttitudeFull);
-            }
+            imAlttitudeFull.Margin = new Windows.UI.Xaml.Thickness(xCenter - 45, yCenter - 4262 - top, 0, 0);
 
             Alttitude_Draw_String_optimize(dAlttitude);
-            //Speed_Draw_Speed(dSpeed, 150, 100);
-
-            //Speed_Draw_String_optimize(dAirSpeed_original, 150, 100);
-            ///////////////////////////////////////////////////////////
 
         }
         ///////////////////////////////////////////////////////////////////////////////////////////
@@ -4592,7 +3713,6 @@ namespace TrackingFlight_v2_0109
                 Tb_Alt[0].Text = Alttitude.ToString() + ".0";
             else
                 Tb_Alt[0].Text = Alttitude.ToString();
-
 
         }
 
@@ -4854,10 +3974,10 @@ namespace TrackingFlight_v2_0109
             //bitmapImage.PixelHeight
             //Img_Needle.sca
             Img_Needle.Stretch = Stretch.Uniform;
-            Img_Needle.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Center;
-            Img_Needle.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Center;
+            Img_Needle.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Right;
+            Img_Needle.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Top;
             //Img_Needle.Opacity = 0.8;
-            Img_Needle.Margin = new Windows.UI.Xaml.Thickness(-2358 + dConvertToTabletX + CenterX * 2, -798 + dConvertToTabletY + CenterY * 2, 0, 0);
+            Img_Needle.Margin = new Windows.UI.Xaml.Thickness(0, CenterY, 10, 0);
             BackgroundDisplay.Children.Add(Img_Needle);
 
         }
@@ -5025,6 +4145,9 @@ namespace TrackingFlight_v2_0109
             positions = new List<BasicGeoposition>();
             ReadInfOfFile();
             //add tblock_Start_Timer, tblock_End_Timer, slider_AdjTime
+            BackgroundDisplay.Children.Remove(tblock_Start_Timer);
+            BackgroundDisplay.Children.Remove(tblock_End_Timer);
+            BackgroundDisplay.Children.Remove(slider_AdjTime);
             BackgroundDisplay.Children.Add(tblock_Start_Timer);
             BackgroundDisplay.Children.Add(tblock_End_Timer);
             BackgroundDisplay.Children.Add(slider_AdjTime);
@@ -5077,6 +4200,7 @@ namespace TrackingFlight_v2_0109
         {
             ConnectDevices.Opacity = 1;//dispay ConnectDevices
         }
+
 
         /// <summary>
         /// when this button is pressed, maps will be show position of flight and dentination
@@ -5142,17 +4266,6 @@ namespace TrackingFlight_v2_0109
             ConnectDevices.Opacity = 1;//dispay ConnectDevices
         }
 
-        private void slider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
-        {
-            //myMap.Height = screenHeight + slider.Value;
-            //10.818442, 106.658824
-            //Draw_Trajectory_And_Flight(10.818442, 106.658824,
-            //            Convert.ToDouble(Data.Altitude), slider.Value);//ok
-            //Draw_Trajectory_And_Flight_optimize(10.818442, 106.658824,
-            //            Convert.ToDouble(0), slider.Value);//ok
-            //Draw_Airspeed_full_optimize(slider.Value, 150 - 32 + i16EditPosition, 205);
-            //Draw_Alttitude_full_optimize(500 + slider.Value, 550 + 88 / 2 + i16EditPosition * 17 / 6, 80);//ok
-        }
 
         /// <summary>
         /// pause simulation when offline mode
