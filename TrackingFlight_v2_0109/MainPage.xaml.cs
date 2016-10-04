@@ -73,6 +73,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
+using WinRTXamlToolkit.Controls;
 //************************************************
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
@@ -378,7 +379,7 @@ namespace TrackingFlight_v2_0109
             Alttitude_Image_full_Setup(100.5, 550 + 88 / 2 + i16EditPosition * 17 / 6, 80);//ok
             Draw_Alttitude_full_optimize(0, 550 + 88 / 2 + i16EditPosition * 17 / 6, 80);//ok
             //Da can chinh 1/3
-            ComPass_Setup_Rotate_Out(0, 350 + i16EditPosition * 11 / 6, 500, 120);//quay phần phía ngoài ok
+            ComPass_Setup_Rotate_Out(0, 350 + i16EditPosition * 11 / 6, 450, 80);//quay phần phía ngoài ok
             //Da can chinh 1/3
             //VerticalSpeed_Setup(0, 550 + i16EditPosition * 17 / 6, 420);
 
@@ -1501,6 +1502,9 @@ namespace TrackingFlight_v2_0109
             //create background left
             FillRect_BackGround(new SolidColorBrush(Colors.DimGray), 0, 00, Width,
             screenHeight, 0.7);
+            //add image make backgroud
+            //add_image_make_background();
+
             //create background in bottom to write latitude and longtitude, zoom level
             DrawLine(new SolidColorBrush(Colors.White), 12, Width, screenHeight - 22, screenWidth - 16, screenHeight - 22);//y axis: left
             //create border
@@ -1560,6 +1564,35 @@ namespace TrackingFlight_v2_0109
             bt_Play.IsEnabled = false;
             bt_Pause.IsEnabled = false;
             bt_Speed.IsEnabled = false;
+
+            //add indicator of gas
+            DrawComPass_fuel(400, screenHeight - 290, 65, 0);
+            DrawComPass_speed_motor(85, screenHeight - 290, 65, 0);
+            add_needle_of_speed(85, screenHeight - 290, 65);
+            rotate_needle_speed(0);
+            DrawComPass_speed_motor(85, screenHeight - 130, 65, 0);
+            add_needle_of_speed1(85, screenHeight - 130, 65);
+            rotate_needle_speed1(0);
+            DrawComPass_speed_motor(400, screenHeight - 130, 65, 0);
+            add_needle_of_speed2(400, screenHeight - 130, 65);
+            rotate_needle_speed2(0);
+            //add 4 button
+            button1.Margin = new Windows.UI.Xaml.Thickness(20, screenHeight - 46, 00, 00);
+            BackgroundDisplay.Children.Remove(button1);
+            BackgroundDisplay.Children.Add(button1);
+            button2.Margin = new Windows.UI.Xaml.Thickness(140, screenHeight - 46, 00, 00);
+            BackgroundDisplay.Children.Remove(button2);
+            BackgroundDisplay.Children.Add(button2);
+            button3.Margin = new Windows.UI.Xaml.Thickness(260, screenHeight - 46, 00, 00);
+            BackgroundDisplay.Children.Remove(button3);
+            BackgroundDisplay.Children.Add(button3);
+            button4.Margin = new Windows.UI.Xaml.Thickness(380, screenHeight - 46, 00, 00);
+            BackgroundDisplay.Children.Remove(button4);
+            BackgroundDisplay.Children.Add(button4);
+            //edit position slider
+            slider_test.Margin = new Windows.UI.Xaml.Thickness(579, screenHeight - 50, 00, 00);
+            BackgroundDisplay.Children.Remove(slider_test);
+            BackgroundDisplay.Children.Add(slider_test);
         }
         //--------------------------------------------------------------------------
 
@@ -2432,10 +2465,10 @@ namespace TrackingFlight_v2_0109
             Compass_Setup_Display_Angle(0, ((int)Angle_Flight).ToString() + '°', 22, new SolidColorBrush(Colors.Red),
                 dComPass_mid_X - 24, dComPass_mid_Y - dComPass_R - 36, 1, 25, 48);
             //ghi chữ Heading (degree) ở phía dưới
-            DrawString("Heading", 24, new SolidColorBrush(Colors.Purple), dComPass_mid_X - dComPass_R + 65,
+            DrawString("Heading", 24, new SolidColorBrush(Colors.Purple), dComPass_mid_X - dComPass_R + 40,
                 dComPass_mid_Y + dComPass_R + 5, 1);
 
-            DrawString("(degrees)", 24, new SolidColorBrush(Colors.Purple), dComPass_mid_X - dComPass_R + 60,
+            DrawString("(degrees)", 24, new SolidColorBrush(Colors.Purple), dComPass_mid_X - dComPass_R + 35,
                 dComPass_mid_Y + dComPass_R + 5 + 30, 1);
         }
 
@@ -2562,8 +2595,8 @@ namespace TrackingFlight_v2_0109
             //Image img_FliCom_Out = new Image();
             BackgroundDisplay.Children.Remove(img_FliCom_Out);
             //Edit size of image
-            img_FliCom_Out.Height = 250;
-            img_FliCom_Out.Width = 250;
+            img_FliCom_Out.Height = 170;
+            img_FliCom_Out.Width = 170;
 
             //img_FliCom_Out.RenderTransform
             img_FliCom_Out.Opacity = 1;
@@ -2593,7 +2626,8 @@ namespace TrackingFlight_v2_0109
             img_FliCom_Out.HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Left;
             img_FliCom_Out.VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Top;
             img_FliCom_Out.Opacity = 0.8;
-            img_FliCom_Out.Margin = new Windows.UI.Xaml.Thickness(CenterX - 125, CenterY - 125, 0, 0);
+            img_FliCom_Out.Margin = new Windows.UI.Xaml.Thickness(CenterX - img_FliCom_Out.Height / 2,
+                CenterY - img_FliCom_Out.Height / 2, 0, 0);
             BackgroundDisplay.Children.Add(img_FliCom_Out);
 
         }
@@ -2614,8 +2648,8 @@ namespace TrackingFlight_v2_0109
             {
 
                 Angle = 360 - angle_Yaw,
-                CenterX = 125,
-                CenterY = 125
+                CenterX = 85,
+                CenterY = 85
             };
 
 
@@ -3040,29 +3074,7 @@ namespace TrackingFlight_v2_0109
         //************************************************************************
         bool bSetup = false;
         bool bOneScreen = false;
-        ///// <summary>
-        ///// 1 nut thuc thi 2 chuc nang: One and Two Screen
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void OneSceen_Click(object sender, RoutedEventArgs e)
-        //{
-        //    //myMap.Margin = new Windows.UI.Xaml.Thickness(0, 0, 00, 00);
-        //    bOneScreen = !bOneScreen;
-        //    if (bOneScreen)
-        //    {
-        //        Background_Sensor(00, -80);
 
-        //        btOneSceen.Content = "2 Screen";
-        //    }
-        //    else
-        //    {
-        //        //Background_Sensor(700, -80);
-        //        myMap.MapElements.Remove(polylineHereToDentination);//delete polyline old before reload
-        //        DisplaySensor_Setup();
-        //        btOneSceen.Content = "1 Screen";
-        //    }
-        //}
         //*********************************************************************
         Rectangle TestRet_BackGround = new Rectangle();
         //**********************************************************************************************
@@ -3449,8 +3461,8 @@ namespace TrackingFlight_v2_0109
 
             Speed_Draw_String_setup(dAirSpeed, xCenter + 32, yCenter - 125);//ok
             //Viết chữ Speed + đơn vị km/ h
-            DrawString("Speed ", 30, new SolidColorBrush(Colors.Crimson), xCenter + 32 - 80, yCenter - 125 + 250 + 5, 0.8);
-            DrawString("(Km/h)", 30, new SolidColorBrush(Colors.Crimson), xCenter + 32 - 80, yCenter - 125 + 250 + 40, 0.8);
+            DrawString("Speed ", 24, new SolidColorBrush(Colors.Crimson), xCenter + 32 - 75, yCenter - 125 + 250 + 5, 0.8);
+            DrawString("(Km/h)", 24, new SolidColorBrush(Colors.Crimson), xCenter + 32 - 75, yCenter - 125 + 250 + 40, 0.8);
         }
         ///////////////////////////////////////////////////////////////////////////////////////
         //optimize
@@ -3672,8 +3684,8 @@ namespace TrackingFlight_v2_0109
                                 yCenter - 15 + (300 - dAirSpeed % 100) * Height / I16FullScale, 1);
 
             //Viết chữ Altitude
-            DrawString("Altitude", 30, new SolidColorBrush(Colors.Crimson), xCenter - 88 / 2 - 10, yCenter + Height + 5, 0.8);
-            DrawString("  (m)", 30, new SolidColorBrush(Colors.Crimson), xCenter - 88 / 2 - 10, yCenter + Height + 35, 0.8);
+            DrawString("Altitude", 24, new SolidColorBrush(Colors.Crimson), xCenter - 88 / 2 - 5, yCenter + Height + 5, 0.8);
+            DrawString("  (m)", 24, new SolidColorBrush(Colors.Crimson), xCenter - 88 / 2 - 5, yCenter + Height + 35, 0.8);
             //sliderAdjSpeed.ValueChanged += sliderAdjSpeed_ValueChanged;
             //test
             //Speed_Draw_String_setup(130.6, 150, 100);
@@ -4266,6 +4278,14 @@ namespace TrackingFlight_v2_0109
             ConnectDevices.Opacity = 1;//dispay ConnectDevices
         }
 
+        private void slider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            rotate_needle_fuel(slider_test.Value);
+            rotate_needle_speed(slider_test.Value);
+            rotate_needle_speed1(slider_test.Value);
+            rotate_needle_speed2(slider_test.Value);
+        }
+
 
         /// <summary>
         /// pause simulation when offline mode
@@ -4287,6 +4307,781 @@ namespace TrackingFlight_v2_0109
             Play_When_ReadFile();
         }
 
+        private void add_image_make_background()
+        {
+            Image im_background_ocean = new Image();
+            im_background_ocean.Source = new BitmapImage(new Uri("ms-appx:///Assets/background_ocean_edit_2.png"));
+            im_background_ocean.Width = 480;//Ảnh này hình vuông nên Width = Height = min(Height, Width)
+
+            //imgAuto_airSpeed.RenderTransform
+            im_background_ocean.Opacity = 1;
+            im_background_ocean.HorizontalAlignment = HorizontalAlignment.Left;
+            im_background_ocean.VerticalAlignment = VerticalAlignment.Top;
+
+            im_background_ocean.Margin = new Windows.UI.Xaml.Thickness(0, -0, 0, 0);
+            BackgroundDisplay.Children.Add(im_background_ocean);
+        }
+
+        /// <summary>
+        /// Vẽ hiển thị của cảm biến Compass với tọa độ trung tâm là dComPass_mid_X, dComPass_mid_Y
+        /// Bán kính là dComPass_R và nhận Angle_Flight là thông số đầu vào
+        /// </summary>
+        /// <param name="dComPass_mid_X"></param>
+        /// <param name="dComPass_mid_Y"></param>
+        /// <param name="dComPass_R"></param>
+        /// <param name="Angle_Flight"></param>
+
+        void DrawComPass_fuel(double dComPass_mid_X, double dComPass_mid_Y, double dComPass_R, double Angle_Flight)
+        {
+
+            double Angle_Rotate = Angle_Flight + 90;
+            //Tao but ve
+            //Graphics formGraphic = this.CreateGraphics();
+            //Pen whitePen = new Pen(Color.White, 2);
+            //Các bút vẽ cần thiết bên windows.UI
+            SolidColorBrush BlushRectangle1 = new SolidColorBrush(Colors.Blue);
+            SolidColorBrush BlushRectangle2 = new SolidColorBrush(Colors.Brown);
+            SolidColorBrush BlushRectangle3 = new SolidColorBrush(Colors.Green);
+            SolidColorBrush BlushRectangle4 = new SolidColorBrush(Colors.Black);
+            SolidColorBrush whitePen = new SolidColorBrush(Colors.White);
+            SolidColorBrush BlushOfString1 = new SolidColorBrush(Colors.White);
+            SolidColorBrush BlushOfArrow = new SolidColorBrush(Colors.Green);
+            //Ve background
+
+            double R_BackRound = dComPass_R + 2;
+
+            //ngay 28/09/2015
+            //formGraphic.DrawArc(whitePen, 200, 50, 200, 200, 210, 120);
+
+            //Ve duong tron ben trong I(fmidXComPass, dComPass_mid_Y) ban kinh fRIntoComPass
+            double dComPass_R_Into;
+            dComPass_R_Into = dComPass_R - 20;
+            //Ve duong thang do chia goc 15 do co 2 diem thuoc 2 duong tron
+            double fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into;
+
+            //***********************************************************
+            /*
+             * *Ngày 29/09/2015
+             */
+
+            /************************************************************/
+            //Ve do chia cho Compass
+            //Ve duong tron ben ngoai I(dComPass_mid_X, dComPass_mid_Y) ban kinh dComPass_R
+            //DrawArcCompass(whitePen, (dComPass_mid_X - dComPass_R), dComPass_mid_Y - dComPass_R,
+            //    2 * dComPass_R, 2 * dComPass_R, 180, 120);
+            //Ve duong tron ben trong I(fmidXComPass, dComPass_mid_Y) ban kinh fRIntoComPass
+            //double dComPass_R_Into;
+            dComPass_R_Into = dComPass_R - 10;
+            //Ve duong thang do chia goc 15 do co 2 diem thuoc 2 duong tron
+            //Ve tai 0, 30, 60, 90, 120, 150, 21, 24, 27, 30, 33 voi duong dai 15
+            //fBalance_R = fBalance_R_Into + 10;
+            //Ang_Rotate phu thuoc vao la ban
+
+            /*************************************************/
+            //Ve chuoi N, S, W, E 30, 60, 12, 15,...
+            double draw_String_index;
+            //Font drawFont = new Font("Arial", 12);
+            double dSizeoftext = 14;
+            double dOpacity = 1.0;
+
+            //*********************************************
+            //viet tat ca cac so xuat hien trong Compass
+            Angle_Rotate = 90;
+            draw_String_index = Angle_Rotate;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("12", dSizeoftext, new SolidColorBrush(Colors.Blue), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 30;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("15", dSizeoftext, new SolidColorBrush(Colors.Blue), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 60;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("18", dSizeoftext, new SolidColorBrush(Colors.Blue), fArc_X_15_Into - 10, fArc_Y_15_Into - 8, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 90;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("21", dSizeoftext, new SolidColorBrush(Colors.Blue), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 120;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("24", dSizeoftext, new SolidColorBrush(Colors.Blue), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            //draw_String_index = Angle_Rotate - 150;
+            //{
+            //    dComPass_R_Into = dComPass_R - 22;
+            //    fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+            //    fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+            //    DrawString("150", dSizeoftext, whitePen, fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            //}
+            //draw_String_index = Angle_Rotate - 180;
+            //{
+            //    dComPass_R_Into = dComPass_R - 22;
+            //    fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+            //    fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+            //    DrawString("180", dSizeoftext, whitePen, fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            //}
+            //draw_String_index = Angle_Rotate - 210;
+            //{
+            //    dComPass_R_Into = dComPass_R - 22;
+            //    fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+            //    fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+            //    DrawString("210", dSizeoftext, whitePen, fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            //}
+            draw_String_index = Angle_Rotate - 240;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("0", dSizeoftext, new SolidColorBrush(Colors.Crimson), fArc_X_15_Into - 10, fArc_Y_15_Into - 7, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 270;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("3", dSizeoftext, new SolidColorBrush(Colors.Crimson), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 300;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("6", dSizeoftext, new SolidColorBrush(Colors.Blue), fArc_X_15_Into - 10, fArc_Y_15_Into - 10, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 330;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("9", dSizeoftext, new SolidColorBrush(Colors.Blue), fArc_X_15_Into - 8, fArc_Y_15_Into - 10, dOpacity);
+            }
+            DrawString("x10", 14, new SolidColorBrush(Colors.Blue), dComPass_mid_X - 12, dComPass_mid_Y - 28, dOpacity);
+            //*********************************************************
+            //*********************************************************
+            //Ve tai 0, 10, 20, 40, 50, 70, 80, 100, ... voi duong dai 15
+            Angle_Rotate = 180;
+            dComPass_R_Into = dComPass_R - 10;
+            for (double index = Angle_Rotate; index <= 30 + Angle_Rotate; index += 10)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Crimson), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            }
+            //Ve tai 5, 15, 25, 35, 45, 55, 65, ... voi duong dai 15
+            //fBalance_R = fBalance_R_Into + 10;
+            dComPass_R_Into = dComPass_R - 5;
+            for (double index = Angle_Rotate; index <= 30 + Angle_Rotate; index += 5)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Crimson), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            }
+            //------------------------------------------------------------------------------------------
+            //vẽ từ 60 đến 180 với màu blue
+            //Ve duong tron ben ngoai I(dComPass_mid_X, dComPass_mid_Y) ban kinh dComPass_R
+            //DrawArcCompass(new SolidColorBrush(Colors.Blue), (dComPass_mid_X - R_BackRound), dComPass_mid_Y - R_BackRound,
+            //    2 * R_BackRound, 2 * R_BackRound, 210, 120);
+
+            dComPass_R_Into = dComPass_R - 10;
+            Angle_Rotate = 30;
+            for (double index = Angle_Rotate; index <= 120 + Angle_Rotate; index += 30)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Blue), 4, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+                //Viet chu North tai vi tri goc ban dau Angle_Rotate
+
+            }
+            //*********************************************************
+            //Ve tai 0, 10, 20, 40, 50, 70, 80, 100, ... voi duong dai 15
+            dComPass_R_Into = dComPass_R - 10;
+            for (double index = Angle_Rotate; index <= 150 + Angle_Rotate; index += 10)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Blue), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            }
+            //Ve tai 5, 15, 25, 35, 45, 55, 65, ... voi duong dai 15
+            //fBalance_R = fBalance_R_Into + 10;
+            dComPass_R_Into = dComPass_R - 5;
+            for (double index = Angle_Rotate; index <= 150 + Angle_Rotate; index += 5)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Blue), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            }
+            //---------------------------------------------------------------------------
+            //vẽ từ 180 đến 240 với màu Crimson
+            //Ve duong tron ben ngoai I(dComPass_mid_X, dComPass_mid_Y) ban kinh dComPass_R
+            DrawArcCompass(new SolidColorBrush(Colors.Blue), (dComPass_mid_X - R_BackRound), dComPass_mid_Y - R_BackRound,
+                2 * R_BackRound, 2 * R_BackRound, 180, 211);
+
+            dComPass_R_Into = dComPass_R - 10;
+            Angle_Rotate = 330;
+            for (double index = Angle_Rotate; index <= 60 + Angle_Rotate; index += 30)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Blue), 4, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+                //Viet chu North tai vi tri goc ban dau Angle_Rotate
+
+            }
+            //*********************************************************
+            //Ve tai 0, 10, 20, 40, 50, 70, 80, 100, ... voi duong dai 15
+            dComPass_R_Into = dComPass_R - 10;
+            for (double index = Angle_Rotate; index <= 60 + Angle_Rotate; index += 10)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Blue), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            }
+            //Ve tai 5, 15, 25, 35, 45, 55, 65, ... voi duong dai 15
+            //fBalance_R = fBalance_R_Into + 10;
+            dComPass_R_Into = dComPass_R - 5;
+            for (double index = Angle_Rotate; index <= 60 + Angle_Rotate; index += 5)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Blue), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            }
+            //Crimson
+            dComPass_R_Into = dComPass_R - 10;
+            Angle_Rotate = 180;
+            for (double index = Angle_Rotate; index <= 30 + Angle_Rotate; index += 30)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Crimson), 3, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+                //Viet chu North tai vi tri goc ban dau Angle_Rotate
+
+            }
+            //Crimson
+            //Ve duong tron ben ngoai I(dComPass_mid_X, dComPass_mid_Y) ban kinh dComPass_R
+            //goc 0 do nằm ngang tính theo kim đồng hồ
+            DrawArcCompass(new SolidColorBrush(Colors.Crimson), (dComPass_mid_X - R_BackRound), dComPass_mid_Y - R_BackRound,
+                2 * R_BackRound, 2 * R_BackRound, 149, 32);
+            add_needle_of_fuel(dComPass_mid_X, dComPass_mid_Y, dComPass_R);
+            add_needle_of_fuel_station(dComPass_mid_X, dComPass_mid_Y + 20, dComPass_R);
+            rotate_needle_fuel(-0);
+        }
+
+        void DrawComPass_speed_motor(double dComPass_mid_X, double dComPass_mid_Y, double dComPass_R, double Angle_Flight)
+        {
+
+            double Angle_Rotate = Angle_Flight + 90;
+            //Tao but ve
+            //Graphics formGraphic = this.CreateGraphics();
+            //Pen whitePen = new Pen(Color.White, 2);
+            //Các bút vẽ cần thiết bên windows.UI
+            SolidColorBrush BlushRectangle1 = new SolidColorBrush(Colors.Black);
+            SolidColorBrush BlushRectangle2 = new SolidColorBrush(Colors.Brown);
+            SolidColorBrush BlushRectangle3 = new SolidColorBrush(Colors.Green);
+            SolidColorBrush BlushRectangle4 = new SolidColorBrush(Colors.Black);
+            SolidColorBrush whitePen = new SolidColorBrush(Colors.White);
+            SolidColorBrush BlushOfString1 = new SolidColorBrush(Colors.White);
+            SolidColorBrush BlushOfArrow = new SolidColorBrush(Colors.Green);
+            //Ve background
+
+            double R_BackRound = dComPass_R + 2;
+
+            //ngay 28/09/2015
+            //formGraphic.DrawArc(whitePen, 200, 50, 200, 200, 210, 120);
+
+            //Ve duong tron ben trong I(fmidXComPass, dComPass_mid_Y) ban kinh fRIntoComPass
+            double dComPass_R_Into;
+            dComPass_R_Into = dComPass_R - 20;
+            //Ve duong thang do chia goc 15 do co 2 diem thuoc 2 duong tron
+            double fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into;
+
+            //***********************************************************
+            /*
+             * *Ngày 29/09/2015
+             */
+
+            /************************************************************/
+            //Ve do chia cho Compass
+            //Ve duong tron ben ngoai I(dComPass_mid_X, dComPass_mid_Y) ban kinh dComPass_R
+            //DrawArcCompass(whitePen, (dComPass_mid_X - dComPass_R), dComPass_mid_Y - dComPass_R,
+            //    2 * dComPass_R, 2 * dComPass_R, 180, 120);
+            //Ve duong tron ben trong I(fmidXComPass, dComPass_mid_Y) ban kinh fRIntoComPass
+            //double dComPass_R_Into;
+            dComPass_R_Into = dComPass_R - 10;
+            //Ve duong thang do chia goc 15 do co 2 diem thuoc 2 duong tron
+            //Ve tai 0, 30, 60, 90, 120, 150, 21, 24, 27, 30, 33 voi duong dai 15
+            //fBalance_R = fBalance_R_Into + 10;
+            //Ang_Rotate phu thuoc vao la ban
+
+            /*************************************************/
+            //Ve chuoi N, S, W, E 30, 60, 12, 15,...
+            double draw_String_index;
+            //Font drawFont = new Font("Arial", 12);
+            double dSizeoftext = 14;
+            double dOpacity = 1.0;
+
+            //*********************************************
+            //viet tat ca cac so xuat hien trong Compass
+            Angle_Rotate = 90;
+            draw_String_index = Angle_Rotate;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("48", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 30;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("60", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 60;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("72", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 8, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 90;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("84", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 120;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("96", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            //draw_String_index = Angle_Rotate - 150;
+            //{
+            //    dComPass_R_Into = dComPass_R - 22;
+            //    fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+            //    fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+            //    DrawString("150", dSizeoftext, whitePen, fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            //}
+            //draw_String_index = Angle_Rotate - 180;
+            //{
+            //    dComPass_R_Into = dComPass_R - 22;
+            //    fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+            //    fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+            //    DrawString("180", dSizeoftext, whitePen, fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            //}
+            //draw_String_index = Angle_Rotate - 210;
+            //{
+            //    dComPass_R_Into = dComPass_R - 22;
+            //    fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+            //    fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+            //    DrawString("210", dSizeoftext, whitePen, fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            //}
+            draw_String_index = Angle_Rotate - 240;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("0", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 7, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 270;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("12", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 300;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("24", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 10, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 330;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("36", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 10, dOpacity);
+            }
+
+            DrawString("RPM", 16, new SolidColorBrush(Colors.Black), dComPass_mid_X - 20, dComPass_mid_Y + 10, dOpacity);
+            DrawString("x100", 14, new SolidColorBrush(Colors.Black), dComPass_mid_X - 18, dComPass_mid_Y - 28, dOpacity);
+            //********************************************************************************
+            //************************************************************************************************
+            //Ve tai 0, 10, 20, 40, 50, 70, 80, 100, ... voi duong dai 15
+            Angle_Rotate = 180;
+            dComPass_R_Into = dComPass_R - 10;
+            for (double index = Angle_Rotate; index <= 30 + Angle_Rotate; index += 10)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Black), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            }
+            //Ve tai 5, 15, 25, 35, 45, 55, 65, ... voi duong dai 15
+            //fBalance_R = fBalance_R_Into + 10;
+            dComPass_R_Into = dComPass_R - 5;
+            for (double index = Angle_Rotate; index <= 30 + Angle_Rotate; index += 5)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Black), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            }
+            //------------------------------------------------------------------------------------------
+            //vẽ từ 60 đến 180 với màu Black
+            //Ve duong tron ben ngoai I(dComPass_mid_X, dComPass_mid_Y) ban kinh dComPass_R
+            //DrawArcCompass(new SolidColorBrush(Colors.Black), (dComPass_mid_X - R_BackRound), dComPass_mid_Y - R_BackRound,
+            //    2 * R_BackRound, 2 * R_BackRound, 210, 120);
+
+            dComPass_R_Into = dComPass_R - 10;
+            Angle_Rotate = 30;
+            for (double index = Angle_Rotate; index <= 120 + Angle_Rotate; index += 30)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Black), 4, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+                //Viet chu North tai vi tri goc ban dau Angle_Rotate
+
+            }
+            //*********************************************************
+            //Ve tai 0, 10, 20, 40, 50, 70, 80, 100, ... voi duong dai 15
+            dComPass_R_Into = dComPass_R - 10;
+            for (double index = Angle_Rotate; index <= 150 + Angle_Rotate; index += 10)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Black), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            }
+            //Ve tai 5, 15, 25, 35, 45, 55, 65, ... voi duong dai 15
+            //fBalance_R = fBalance_R_Into + 10;
+            dComPass_R_Into = dComPass_R - 5;
+            for (double index = Angle_Rotate; index <= 150 + Angle_Rotate; index += 5)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Black), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            }
+            //---------------------------------------------------------------------------
+            //vẽ từ 180 đến 240 với màu Black
+            //Ve duong tron ben ngoai I(dComPass_mid_X, dComPass_mid_Y) ban kinh dComPass_R
+            DrawArcCompass(new SolidColorBrush(Colors.Black), (dComPass_mid_X - R_BackRound), dComPass_mid_Y - R_BackRound,
+                2 * R_BackRound, 2 * R_BackRound, 180, 211);
+
+            dComPass_R_Into = dComPass_R - 10;
+            Angle_Rotate = 330;
+            for (double index = Angle_Rotate; index <= 60 + Angle_Rotate; index += 30)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Black), 4, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+                //Viet chu North tai vi tri goc ban dau Angle_Rotate
+
+            }
+            //*********************************************************
+            //Ve tai 0, 10, 20, 40, 50, 70, 80, 100, ... voi duong dai 15
+            dComPass_R_Into = dComPass_R - 10;
+            for (double index = Angle_Rotate; index <= 60 + Angle_Rotate; index += 10)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Black), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            }
+            //Ve tai 5, 15, 25, 35, 45, 55, 65, ... voi duong dai 15
+            //fBalance_R = fBalance_R_Into + 10;
+            dComPass_R_Into = dComPass_R - 5;
+            for (double index = Angle_Rotate; index <= 60 + Angle_Rotate; index += 5)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Black), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            }
+            //Black
+            dComPass_R_Into = dComPass_R - 10;
+            Angle_Rotate = 180;
+            for (double index = Angle_Rotate; index <= 30 + Angle_Rotate; index += 30)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Black), 3, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+                //Viet chu North tai vi tri goc ban dau Angle_Rotate
+
+            }
+            //Black
+            //Ve duong tron ben ngoai I(dComPass_mid_X, dComPass_mid_Y) ban kinh dComPass_R
+            //goc 0 do nằm ngang tính theo kim đồng hồ
+            DrawArcCompass(new SolidColorBrush(Colors.Black), (dComPass_mid_X - R_BackRound), dComPass_mid_Y - R_BackRound,
+                2 * R_BackRound, 2 * R_BackRound, 149, 32);
+            //add_needle_of_speed(dComPass_mid_X, dComPass_mid_Y, dComPass_R);
+            //rotate_needle_speed(0);
+        }
+        Image im_needle_fuel = new Image();
+        /// <summary>
+        /// add image of needle for indicator fuel
+        /// </summary>
+        /// <param name="dComPass_mid_X"></param>
+        /// <param name="dComPass_mid_Y"></param>
+        /// <param name="dComPass_R"></param>
+        private void add_needle_of_fuel(double dComPass_mid_X, double dComPass_mid_Y, double dComPass_R)
+        {
+            BackgroundDisplay.Children.Remove(im_needle_fuel);
+            im_needle_fuel.Source = new BitmapImage(new Uri("ms-appx:///Assets/fuel_needle.png"));
+            im_needle_fuel.Width = 130;//Ảnh này hình vuông nên Width = Height = min(Height, Width)
+
+            //imgAuto_airSpeed.RenderTransform
+            im_needle_fuel.Opacity = 1;
+            im_needle_fuel.HorizontalAlignment = HorizontalAlignment.Left;
+            im_needle_fuel.VerticalAlignment = VerticalAlignment.Top;
+
+            im_needle_fuel.Margin = new Windows.UI.Xaml.Thickness
+                (dComPass_mid_X - im_needle_fuel.Width / 2, dComPass_mid_Y  - im_needle_fuel.Width / 2, 0, 0);
+            BackgroundDisplay.Children.Add(im_needle_fuel);
+        }
+
+        Image im_needle_fuel_station = new Image();
+        private void add_needle_of_fuel_station(double dComPass_mid_X, double dComPass_mid_Y, double dComPass_R)
+        {
+            BackgroundDisplay.Children.Remove(im_needle_fuel_station);
+            im_needle_fuel_station.Source = new BitmapImage(new Uri("ms-appx:///Assets/gas_station.png"));
+            im_needle_fuel_station.Width = 20;//Ảnh này hình vuông nên Width = Height = min(Height, Width)
+
+            //imgAuto_airSpeed.RenderTransform
+            im_needle_fuel_station.Opacity = 1;
+            im_needle_fuel_station.HorizontalAlignment = HorizontalAlignment.Left;
+            im_needle_fuel_station.VerticalAlignment = VerticalAlignment.Top;
+
+            im_needle_fuel_station.Margin = new Windows.UI.Xaml.Thickness
+                (dComPass_mid_X - im_needle_fuel_station.Width / 2, dComPass_mid_Y - im_needle_fuel_station.Width / 2, 0, 0);
+            BackgroundDisplay.Children.Add(im_needle_fuel_station);
+        }
+
+        /// <summary>
+        /// rotate image of needle for indicator fuel
+        /// </summary>
+        /// <param name="angle_Yaw"></param>
+        public void rotate_needle_fuel(double angle_Yaw)
+        {
+
+            //BackgroundDisplay.Children.Remove(img_FliCom_Out);
+            //center width/2, height/2
+            im_needle_fuel.RenderTransform = new RotateTransform()
+            {
+
+                Angle = angle_Yaw - 135,
+                CenterX = 65,
+                CenterY = 65
+            };
+        }
+
+
+        Image im_needle_speed = new Image();
+        /// <summary>
+        /// add image of needle for indicator fuel
+        /// </summary>
+        /// <param name="dComPass_mid_X"></param>
+        /// <param name="dComPass_mid_Y"></param>
+        /// <param name="dComPass_R"></param>
+        private void add_needle_of_speed(double dComPass_mid_X, double dComPass_mid_Y, double dComPass_R)
+        {
+            BackgroundDisplay.Children.Remove(im_needle_speed);
+            im_needle_speed.Source = new BitmapImage(new Uri("ms-appx:///Assets/needle_speed.png"));
+            im_needle_speed.Width = 130;//Ảnh này hình vuông nên Width = Height = min(Height, Width)
+
+            //imgAuto_airSpeed.RenderTransform
+            im_needle_speed.Opacity = 1;
+            im_needle_speed.HorizontalAlignment = HorizontalAlignment.Left;
+            im_needle_speed.VerticalAlignment = VerticalAlignment.Top;
+
+            im_needle_speed.Margin = new Windows.UI.Xaml.Thickness
+                (dComPass_mid_X - im_needle_speed.Width / 2, dComPass_mid_Y - im_needle_speed.Width / 2, 0, 0);
+            BackgroundDisplay.Children.Add(im_needle_speed);
+        }
+
+        /// <summary>
+        /// rotate image of needle for indicator fuel
+        /// </summary>
+        /// <param name="angle_Yaw"></param>
+        public void rotate_needle_speed(double angle_Yaw)
+        {
+
+            //BackgroundDisplay.Children.Remove(img_FliCom_Out);
+            //center width/2, height/2
+            im_needle_speed.RenderTransform = new RotateTransform()
+            {
+
+                Angle = angle_Yaw - 135,
+                CenterX = 65,
+                CenterY = 65
+            };
+        }
+
+        Image im_needle_speed1 = new Image();
+        /// <summary>
+        /// add image of needle for indicator fuel
+        /// </summary>
+        /// <param name="dComPass_mid_X"></param>
+        /// <param name="dComPass_mid_Y"></param>
+        /// <param name="dComPass_R"></param>
+        private void add_needle_of_speed1(double dComPass_mid_X, double dComPass_mid_Y, double dComPass_R)
+        {
+            BackgroundDisplay.Children.Remove(im_needle_speed1);
+            im_needle_speed1.Source = new BitmapImage(new Uri("ms-appx:///Assets/needle_speed.png"));
+            im_needle_speed1.Width = 130;//Ảnh này hình vuông nên Width = Height = min(Height, Width)
+
+            //imgAuto_airSpeed.RenderTransform
+            im_needle_speed1.Opacity = 1;
+            im_needle_speed1.HorizontalAlignment = HorizontalAlignment.Left;
+            im_needle_speed1.VerticalAlignment = VerticalAlignment.Top;
+
+            im_needle_speed1.Margin = new Windows.UI.Xaml.Thickness
+                (dComPass_mid_X - im_needle_speed1.Width / 2, dComPass_mid_Y - im_needle_speed1.Width / 2, 0, 0);
+            BackgroundDisplay.Children.Add(im_needle_speed1);
+        }
+
+        /// <summary>
+        /// rotate image of needle for indicator fuel
+        /// </summary>
+        /// <param name="angle_Yaw"></param>
+        public void rotate_needle_speed1(double angle_Yaw)
+        {
+
+            //BackgroundDisplay.Children.Remove(img_FliCom_Out);
+            //center width/2, height/2
+            im_needle_speed1.RenderTransform = new RotateTransform()
+            {
+
+                Angle = angle_Yaw - 135,
+                CenterX = 65,
+                CenterY = 65
+            };
+        }
+
+        Image im_needle_speed2 = new Image();
+        /// <summary>
+        /// add image of needle for indicator fuel
+        /// </summary>
+        /// <param name="dComPass_mid_X"></param>
+        /// <param name="dComPass_mid_Y"></param>
+        /// <param name="dComPass_R"></param>
+        private void add_needle_of_speed2(double dComPass_mid_X, double dComPass_mid_Y, double dComPass_R)
+        {
+            BackgroundDisplay.Children.Remove(im_needle_speed2);
+            im_needle_speed2.Source = new BitmapImage(new Uri("ms-appx:///Assets/needle_speed.png"));
+            im_needle_speed2.Width = 130;//Ảnh này hình vuông nên Width = Height = min(Height, Width)
+
+            //imgAuto_airSpeed.RenderTransform
+            im_needle_speed2.Opacity = 1;
+            im_needle_speed2.HorizontalAlignment = HorizontalAlignment.Left;
+            im_needle_speed2.VerticalAlignment = VerticalAlignment.Top;
+
+            im_needle_speed2.Margin = new Windows.UI.Xaml.Thickness
+                (dComPass_mid_X - im_needle_speed2.Width / 2, dComPass_mid_Y - im_needle_speed2.Width / 2, 0, 0);
+            BackgroundDisplay.Children.Add(im_needle_speed2);
+        }
+
+        /// <summary>
+        /// rotate image of needle for indicator fuel
+        /// </summary>
+        /// <param name="angle_Yaw"></param>
+        public void rotate_needle_speed2(double angle_Yaw)
+        {
+
+            //BackgroundDisplay.Children.Remove(img_FliCom_Out);
+            //center width/2, height/2
+            im_needle_speed2.RenderTransform = new RotateTransform()
+            {
+
+                Angle = angle_Yaw - 135,
+                CenterX = 65,
+                CenterY = 65
+            };
+        }
+
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="startAngle"></param>
+        /// <param name="sweepAngle"></param>
+        void DrawArcCompass(SolidColorBrush brush, double x, double y, double width, double height, int startAngle, int sweepAngle)
+
+        {
+
+
+            RingSlice TestRinslice = new RingSlice();
+            //BackgroundDisplay.Children.Remove(TestRinslice);
+            TestRinslice.StartAngle = (double)startAngle + 90;
+            TestRinslice.EndAngle = startAngle + 90 + sweepAngle;
+            TestRinslice.Fill = brush;
+            TestRinslice.Radius = height / 2;
+            TestRinslice.InnerRadius = height / 2 - 2;
+            //Thickness sẽ dời tâm đường tròn
+            TestRinslice.HorizontalAlignment = HorizontalAlignment.Left;
+            TestRinslice.VerticalAlignment = VerticalAlignment.Top;
+            TestRinslice.Margin = new Windows.UI.Xaml.Thickness(
+                (x), (y), 0, 0);
+            BackgroundDisplay.Children.Add(TestRinslice);
+
+        }
         //*********************************************************************************************
         //end of class
     }

@@ -13,13 +13,13 @@
 
     </Page.Resources>
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="BackgroundDisplay" Margin="0,0,-991,-100" >
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="BackgroundDisplay" >
         <Maps:MapControl x:Name="myMap" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Height="730" Width="1260"  >
         </Maps:MapControl>
 
         <!--<Slider x:Name="slider" Margin="679,159,1072,561" Height="100" ValueChanged="slider_ValueChanged" Maximum="1200" Minimum="0" />-->
-        <!--<Slider x:Name="slider_test" Margin="679,316,1072,404" Height="100" SmallChange="1" ValueChanged="slider_ValueChanged" Maximum="100" />
-        <Slider x:Name="slider_test1" Margin="679,480,1072,240" Height="100" SmallChange="1" ValueChanged="slider_ValueChanged" Maximum="100" />-->
+        <Slider x:Name="slider_test" Margin="579,316,0,0" Height="100" SmallChange="1" ValueChanged="slider_ValueChanged" Maximum="240" />
+        <!--<Slider x:Name="slider_test1" Margin="679,480,0,0" Height="100" SmallChange="1" ValueChanged="slider_ValueChanged" Maximum="100" />-->
         <!--
         <Button x:Name="Map3D" Click="Map3D_Click" HorizontalAlignment="Left" Content="Map3D"
                 Height="40" Margin="600,-1,0,0" VerticalAlignment="Top" Width="100">
@@ -91,6 +91,9 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
+        
+
+        
         <!--*******************************************************************************-->
         <Button x:Name="ShowButton" ToolTipService.ToolTip="Menu" Background="YellowGreen" VerticalAlignment="Top" Foreground="{ThemeResource ApplicationForegroundThemeBrush}" Margin="449,10,0,0">
             <Button.Content>
@@ -124,5 +127,47 @@
                 </MenuFlyout>
             </Button.Flyout>
         </Button>
+        <!--Add 4 button-->
+        <!--<Button x:Name="button1" Content="B1" HorizontalAlignment="Left" Margin="020,612,0,0" Background="Green" Width="80" VerticalAlignment="Top"/>-->
+        <!--<Button x:Name="button2" Content="B2" HorizontalAlignment="Left" Margin="140,612,0,0" Background="Green" Width="80" VerticalAlignment="Top"/>
+        <Button x:Name="button3" Content="B3" HorizontalAlignment="Left" Margin="260,612,0,0" Background="Green" Width="80" VerticalAlignment="Top"/>
+        <Button x:Name="button4" Content="B4" HorizontalAlignment="Left" Margin="380,612,0,0" Background="Green" Width="80" VerticalAlignment="Top"/>-->
+
+        <Button x:Name="button1" Content="B1" HorizontalAlignment="Left" Margin="620,400,0,0" VerticalAlignment="Top" Width="80" FontSize="22" Opacity="1" Foreground="White" Padding="1,-5,1,0">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="Black" Offset="0" />
+                    <GradientStop Color="#9BBFFFFF" Offset="1" />
+                </LinearGradientBrush>
+            </Button.Background>
+        </Button>
+
+        <Button x:Name="button2" Content="B2" HorizontalAlignment="Left" Margin="620,400,0,0" VerticalAlignment="Top" Width="80" FontSize="22" Opacity="1" Foreground="White" Padding="1,-5,1,0">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="Black" Offset="0" />
+                    <GradientStop Color="#9BBFFFFF" Offset="1" />
+                </LinearGradientBrush>
+            </Button.Background>
+        </Button>
+
+        <Button x:Name="button3" Content="B3" HorizontalAlignment="Left" Margin="620,400,0,0" VerticalAlignment="Top" Width="80" FontSize="22" Opacity="1" Foreground="White" Padding="1,-5,1,0">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="Black" Offset="0" />
+                    <GradientStop Color="#9BBFFFFF" Offset="1" />
+                </LinearGradientBrush>
+            </Button.Background>
+        </Button>
+
+        <Button x:Name="button4" Content="B4" HorizontalAlignment="Left" Margin="620,400,0,0" VerticalAlignment="Top" Width="80" FontSize="22" Opacity="1" Foreground="White" Padding="1,-5,1,0">
+            <Button.Background>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="Black" Offset="0" />
+                    <GradientStop Color="#9BBFFFFF" Offset="1" />
+                </LinearGradientBrush>
+            </Button.Background>
+        </Button>
+
     </Grid>
 </Page>
