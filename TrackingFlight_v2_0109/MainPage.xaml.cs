@@ -686,7 +686,7 @@ namespace TrackingFlight_v2_0109
 
                     errorFrame += 1;
                     tblock_Current_Timer.Text = "frame error: " + strDataFromSerialPort + ", Error: " + ex.Message + "No Error: " + errorFrame.ToString();
-
+                    
                 }
                 //
 
@@ -961,7 +961,7 @@ namespace TrackingFlight_v2_0109
 
         //draw line in map 2D
         //đường thẳng đưa vào là biến toàn cục
-        Windows.UI.Xaml.Controls.Maps.MapPolyline mapPolyline = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
+        Windows.UI.Xaml.Controls.Maps.MapPolyline line_path_of_flight = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
         Windows.UI.Xaml.Controls.Maps.MapPolyline polylineHereToDentination = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
         /// <summary>
         /// Ve duong thẳng nối (lat1, lon1) va (lat2, lon2)
@@ -1510,6 +1510,9 @@ namespace TrackingFlight_v2_0109
             //create border
             //FillRect_Border(new SolidColorBrush(Colors.WhiteSmoke), 300, -300, 30,
             //760, 0.7);
+            //test
+            tblock_Current_Timer.Text = screenWidth.ToString() + 'x' + screenHeight.ToString();
+
             DrawLine(new SolidColorBrush(Colors.MidnightBlue), 12, 6, 0, 6, screenHeight);//y axis: left
             DrawLine(new SolidColorBrush(Colors.MidnightBlue), 16, Width, 0, Width, screenHeight);//y axis mid
             DrawLine(new SolidColorBrush(Colors.MidnightBlue), 16, screenWidth - 8, 0, screenWidth - 8, screenHeight);//y axis right
@@ -2891,9 +2894,9 @@ namespace TrackingFlight_v2_0109
 
 
 
-            mapPolyline.StrokeColor = Colors.Red;
-            mapPolyline.StrokeThickness = 2;
-            mapPolyline.StrokeDashed = false;//nét liền
+            line_path_of_flight.StrokeColor = Colors.Red;
+            line_path_of_flight.StrokeThickness = 2;
+            line_path_of_flight.StrokeDashed = false;//nét liền
 
             //Ve duong thang den dentination
             //San bay tan son nhat:  dLatDentination, dLonDentination google map
@@ -2905,12 +2908,12 @@ namespace TrackingFlight_v2_0109
             if (old_Lat != 0.0)//Vì lúc đầu chưa có dữ liệu nên k hiện máy bay
             {
                 //Windows.UI.Xaml.Controls.Maps.MapPolyline mapPolyline = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
-                mapPolyline.Path = new Geopath(new List<BasicGeoposition>() {
+                line_path_of_flight.Path = new Geopath(new List<BasicGeoposition>() {
                 new BasicGeoposition() {Latitude = old_Lat, Longitude = old_Lon, Altitude = alt + 0.00005},
                 //San Bay Tan Son Nhat
                 new BasicGeoposition() {Latitude = lat, Longitude = lon, Altitude = alt - 0.00005},
-            });
-                myMap.MapElements.Add(mapPolyline);
+                });
+                myMap.MapElements.Add(line_path_of_flight);
 
 
                 myMap.MapElements.Add(polylineHereToDentination);
@@ -2994,28 +2997,24 @@ namespace TrackingFlight_v2_0109
             //                                                                                         // Now add your positions:
             if (0 != old_Lat)
             {
-                positions.Add(new BasicGeoposition() { Latitude = lat, Longitude = lon });//to turn on auto zoom mode
 
                 //Vẽ quỹ đạo
-                MapPolyline lineToRmove = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
 
-                lineToRmove.Path = new Geopath(new List<BasicGeoposition>() {
-                new BasicGeoposition() {Latitude = old_Lat, Longitude = old_Lon},
-                //San Bay Tan Son Nhat
-                new BasicGeoposition() {Latitude = lat, Longitude = lon}
-                });
+                //line_path_of_flight.Path = new Geopath(new List<BasicGeoposition>() {
+                //new BasicGeoposition() {Latitude = old_Lat, Longitude = old_Lon},
+                //new BasicGeoposition() {Latitude = lat, Longitude = lon}
+                //});
 
-                lineToRmove.StrokeColor = Colors.Red;
-                lineToRmove.StrokeThickness = 2;
-                lineToRmove.StrokeDashed = false;//nét liền
-
-                //myMap.MapElements.Remove(mapPolyline);
-                myMap.MapElements.Add(lineToRmove);
+                //myMap.MapElements.Add(line_path_of_flight);
 
 
                 //auto zoom
                 if (bAutoZoom)
+                {
+                    positions.Add(new BasicGeoposition() { Latitude = lat, Longitude = lon });//to turn on auto zoom mode
                     SetMapPolyline(positions);
+                }
+
 
 
                 myMap.Children.Add(imageOfFlight);
