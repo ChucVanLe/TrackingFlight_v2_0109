@@ -1538,7 +1538,7 @@ namespace TrackingFlight_v2_0109
             //FillRect_Border(new SolidColorBrush(Colors.WhiteSmoke), 300, -300, 30,
             //760, 0.7);
             //test
-            tblock_Current_Timer.Text = screenWidth.ToString() + 'x' + screenHeight.ToString();
+            //tblock_Current_Timer.Text = screenWidth.ToString() + 'x' + screenHeight.ToString();
 
             DrawLine(new SolidColorBrush(Colors.MidnightBlue), 12, 6, 0, 6, screenHeight);//y axis: left
             DrawLine(new SolidColorBrush(Colors.MidnightBlue), 16, Width, 0, Width, screenHeight);//y axis mid
@@ -2974,6 +2974,7 @@ namespace TrackingFlight_v2_0109
         //draw line in map 2D
         //Vẽ quỹ đạo là nét liền nên ta dùng 2 biến tạm để lưu giá trị cũ của Lat, Lon
         //double old_Lat, old_Lon;
+        double check_is_have_GPS = 0;
         /// <summary>
         /// Chấm điểm có màu vàng tại vị trí lat, lon, Alt
         /// Vẽ vị trí máy bay và góc quay của máy bay
@@ -3022,18 +3023,21 @@ namespace TrackingFlight_v2_0109
             //if (old_Lat != 0.0)//Vì lúc đầu chưa có dữ liệu nên k hiện máy bay
             //    positions.Add(new BasicGeoposition() { Latitude = old_Lat, Longitude = old_Lon });   //<== this
             //                                                                                         // Now add your positions:
-            if (0 != old_Lat)
+            if (0 != check_is_have_GPS)
             {
 
                 //Vẽ quỹ đạo
+                if (index_draw_path < time_sample_draw_path) index_draw_path++;
+                else
+                {
+                    index_draw_path = 1;
+                    line_path_of_flight.Path = new Geopath(new List<BasicGeoposition>() {
+                    new BasicGeoposition() {Latitude = old_Lat, Longitude = old_Lon},
+                    new BasicGeoposition() {Latitude = lat, Longitude = lon}
+                    });
 
-                //line_path_of_flight.Path = new Geopath(new List<BasicGeoposition>() {
-                //new BasicGeoposition() {Latitude = old_Lat, Longitude = old_Lon},
-                //new BasicGeoposition() {Latitude = lat, Longitude = lon}
-                //});
-
-                //myMap.MapElements.Add(line_path_of_flight);
-
+                    myMap.MapElements.Add(line_path_of_flight);
+                }
 
                 //auto zoom
                 if (bAutoZoom)
@@ -3055,10 +3059,15 @@ namespace TrackingFlight_v2_0109
                 myMap.MapElements.Add(polylineHereToDentination);
             }
 
+            check_is_have_GPS = lat;
+            
+            if (1 == index_draw_path)
+            {
+                //update new data to draw path
+                old_Lat = lat;
+                old_Lon = lon;
+            }
 
-            //Updata giá trí mới
-            old_Lat = lat;
-            old_Lon = lon;
         }
 
         //test remove polyline
@@ -5007,6 +5016,64 @@ namespace TrackingFlight_v2_0109
 
 
         Image im_needle_speed = new Image();
+
+        int time_sample_draw_path = 1, index_draw_path = 1;
+        /// <summary>
+        /// change time sample to max: 0.2s
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void bt_time_sample_max(object sender, RoutedEventArgs e)
+        {
+            time_sample_draw_path = 1;//30min --> system is slow
+        }
+
+        /// <summary>
+        /// change time sample to 1s
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void bt_time_sample_1s(object sender, RoutedEventArgs e)
+        {
+            time_sample_draw_path = 5;//150min --> system is slow
+        }
+        /// <summary>
+        /// change time sample to 5s
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void bt_time_sample_5s(object sender, RoutedEventArgs e)
+        {   
+            time_sample_draw_path = 25;//750min --> system is slow
+        }
+        /// <summary>
+        /// change time sample to 10s
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void bt_time_sample_10s(object sender, RoutedEventArgs e)
+        {
+            time_sample_draw_path = 50;//1500min --> system is slow
+        }
+        /// <summary>
+        /// change time sample to 20s
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void bt_time_sample_20(object sender, RoutedEventArgs e)
+        {
+            time_sample_draw_path = 100;//3000min --> system is slow
+        }
+        /// <summary>
+        /// change time sample to 30s
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void bt_time_sample_30s(object sender, RoutedEventArgs e)
+        {
+            time_sample_draw_path = 150;//4500min --> system is slow
+        }
+
         /// <summary>
         /// add image of needle for indicator fuel
         /// </summary>
