@@ -74,6 +74,7 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
 using WinRTXamlToolkit.Controls;
+
 //************************************************
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
@@ -96,6 +97,7 @@ namespace TrackingFlight_v2_0109
         public string Pitch { get; set; }
         public string Yaw { get; set; }
     }
+
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
@@ -137,13 +139,9 @@ namespace TrackingFlight_v2_0109
         public MainPage()
         {
             this.InitializeComponent();
-            //NewItems = SampleDataModel.GetSampleData().Where(x => x.IsNew).ToList();
-            //FlaggedItems = SampleDataModel.GetSampleData().Where(x => x.IsFlagged).ToList();
-            //AllItems = SampleDataModel.GetSampleData().ToList();
-            //this.Suggestions = new ObservableCollection<SampleDataModel>();
 
-            //this.DataContext = this;
             Dis_Setup();
+
         }
         //*****************************************************************
         /*
@@ -156,8 +154,9 @@ namespace TrackingFlight_v2_0109
         public void Dis_Setup()
         {
             Dis_Setup_MapOffline();
-            //C: \Users\VANCHUC - PC\AppData\Local\Packages\54fa2b45 - b04f - 4b40 - 809b - 7556c7ed473f_pq4mhrhe9d4xp\LocalState
-            //Save_Setup();
+            //C: \Users\VANCHUC - PC\AppData\Local\Packages\package name\LocalState
+            //C:\Users\41200\AppData\Local\Packages\804c9c00-fd4b-410e-a631-1b41a84154dd_pyg7hgts37nmr\LocalState
+            Save_Setup();
 
             Dis_Setup_UART();
 
@@ -212,20 +211,33 @@ namespace TrackingFlight_v2_0109
             //ListPortInput(3000);
 
         }
-
+        string fileName = "";
+        Windows.Storage.StorageFile file_user_save_picker, sf_user_savePicker_and_permission;
+        //FileSavePicker savePicker = new FileSavePicker();
         /// <summary> check 02/03/16: OK
         /// Khoi tao bien cho ham save and write header
         /// </summary>
         public async void Save_Setup()
         {
-            storageFolder =
-            Windows.Storage.ApplicationData.Current.LocalFolder;
-            sampleFile =
-                await storageFolder.CreateFileAsync("dataReceive.txt",
-                    Windows.Storage.CreationCollisionOption.ReplaceExisting);
-            //write header
-            SaveTotxt("Data from sensor Ublox GPS + compass, baud rate: 57600" + '\n');
-            SaveTotxt("Test data: 2/3/2016, Location: ... " + '\n');
+            fileName = DateTime.Now.ToString("M / d / yyyy hh mm ss tt") + ".txt";
+            //c1
+            var savePicker = new Windows.Storage.Pickers.FileSavePicker();
+            savePicker.SuggestedStartLocation =
+                Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
+            // Dropdown of file types the user can save the file as
+            savePicker.FileTypeChoices.Add("Plain Text", new List<string>() { ".txt" });
+            // Default file name if the user does not type one in or select a file to replace
+            savePicker.SuggestedFileName = fileName;
+            file_user_save_picker = await savePicker.PickSaveFileAsync();
+            // Prevent updates to the remote version of the file until
+            // we finish making changes and call CompleteUpdatesAsync.
+            Windows.Storage.CachedFileManager.DeferUpdates(file_user_save_picker);
+            // write to file
+            //for(int test = 0; test < 10000; test++)
+            //await Windows.Storage.FileIO.AppendTextAsync(file_user_save_picker, "Data from sensor Ublox GPS + compass, baud rate: 57600" + '\n');
+            SaveTotxt_use_savePicker("Data from sensor Ublox GPS + compass, baud rate: 57600" + '\n');
+            SaveTotxt_use_savePicker("Test data: 11/10/2016, Location: ... " + '\n');
+
         }
         //***************End of class set up********************************************
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -686,7 +698,7 @@ namespace TrackingFlight_v2_0109
 
                     errorFrame += 1;
                     tblock_Current_Timer.Text = "frame error: " + strDataFromSerialPort + ", Error: " + ex.Message + "No Error: " + errorFrame.ToString();
-                    
+
                 }
                 //
 
@@ -1042,7 +1054,8 @@ namespace TrackingFlight_v2_0109
         //Chú ý muốn nhận cổng com của cường thì phải cài driver cho nó
 
         //******************************************************************************
-
+        string data_from_serial_to_save_file = "";
+        int how_many_line_save_1_time = 0;
         //xử lý data không dùng timer
         //optimize in 14/5/2016
         public void processDataToDrawTrajactory()
@@ -1051,7 +1064,23 @@ namespace TrackingFlight_v2_0109
             {
                 if (strDataFromSerialPort.IndexOf('\r') != -1)//Bắt ký tự $
                 {
+
                     Data.Temp = FindTextInStr(strDataFromSerialPort, '\r');
+                    //save file-------------------------------------
+                    //c1
+                    if (200 == how_many_line_save_1_time)
+                    {
+                        how_many_line_save_1_time = 0;
+                        SaveTotxt_use_savePicker(data_from_serial_to_save_file);
+                        data_from_serial_to_save_file = "";
+                    }
+                    else
+                    {
+                        how_many_line_save_1_time++;
+                        data_from_serial_to_save_file += Data.Temp + '\r';
+                    }
+                    //c2
+                    //SaveTotxt(Data.Temp + '\r');
                     processDataFull();
                 }
             }
@@ -1068,8 +1097,8 @@ namespace TrackingFlight_v2_0109
         public void processDataFull()
         {
             {
-                //Data.Temp = FindTextInStr(strDataFromSerialPort, "\r\n");
-                //if (Data.Temp.IndexOf('$') != -1)
+
+                //---------process data--------------------------------
                 try
                 {
 
@@ -1127,15 +1156,13 @@ namespace TrackingFlight_v2_0109
                         ////tbOutputText.Text += "DataSauCut: " + Data.Temp + '\n';
                         //tách lấy giờ, thời gian GPS chậm hơn thời gian thực 7h nên phải cộng 7
                         //Nếu time >= 240000.00 thì phải trừ đi 240000.00
-                        double dTemp_Time_hour = 0, dTemp_Time;
+                        int dTemp_Time_hour = 0;
                         string temp_time = Data.Temp.Substring(0, Data.Temp.IndexOf(','));
                         if (temp_time != "")
                         {
-                            dTemp_Time_hour = Convert.ToDouble(temp_time.Substring(0, 2)) + 7;
+                            dTemp_Time_hour = Convert.ToInt16(Data.Temp.Substring(0, 2)) + 7;
                             if (dTemp_Time_hour >= 24) dTemp_Time_hour -= 24;
-                            dTemp_Time = Convert.ToDouble(temp_time) + 70000.00;
-                            if (dTemp_Time >= 240000.00) dTemp_Time_hour -= 240000.00;
-                            Data.Time = dTemp_Time.ToString();
+                            Data.Time = dTemp_Time_hour.ToString() + Data.Temp.Substring(2, Data.Temp.IndexOf(',') - 2);
                         }
                         //show now time
                         //format hour:min:sec
@@ -1144,12 +1171,12 @@ namespace TrackingFlight_v2_0109
                         //    + ':' + temp_time.Substring(4, 5);
                         if (bConnectOk)//connect to Com
                         {
-                            if (-1 != Data.Time.IndexOf('.'))//have '.' in Data.Time 82754.7
-                                tblock_Current_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 6) + ':'
-                                        + Data.Time.Substring(Data.Time.Length - 6, 2) + ':' + Data.Time.Substring(Data.Time.Length - 4, 4);
-                            else
-                                tblock_Current_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 4) + ':'
-                                        + Data.Time.Substring(Data.Time.Length - 4, 2) + ':' + Data.Time.Substring(Data.Time.Length - 2, 2);
+                            //if (-1 != Data.Time.IndexOf('.'))//have '.' in Data.Time 82754.70
+                            tblock_Current_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 7) + ':'
+                                    + Data.Time.Substring(Data.Time.Length - 7, 2) + ':' + Data.Time.Substring(Data.Time.Length - 5, 5);
+                            //else
+                            //    tblock_Current_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 4) + ':'
+                            //            + Data.Time.Substring(Data.Time.Length - 4, 2) + ':' + Data.Time.Substring(Data.Time.Length - 2, 2);
                         }
 
                         //tblock_CurentTime.Text = "Now: " + Data.Time;
@@ -2970,7 +2997,7 @@ namespace TrackingFlight_v2_0109
             imageOfFlight.RenderTransform = new RotateTransform()
             {
 
-                Angle = dHeading,
+                Angle = dHeading - myMap.Heading,
                 //Angle = 0,
                 CenterX = 4 * myMap.ZoomLevel / 2,
                 CenterY = 4 * myMap.ZoomLevel / 2 //The prop name maybe mistyped 
@@ -3132,11 +3159,58 @@ namespace TrackingFlight_v2_0109
         /// Note: Close dataReceive.txt before write
         /// </summary>
         /// <param name="content"></param>
-        public async void SaveTotxt(string content)
+        public void SaveTotxt(string content)
         {
-            //Windows.Storage.FileIO.ReadLinesAsync()
-            //Windows.Storage.FileIO.ReadLinesAsync()
-            await Windows.Storage.FileIO.AppendTextAsync(sampleFile, content);
+            //------------------------------------------------------------
+            //await Windows.Storage.FileIO.AppendTextAsync(sampleFile, content);
+            //-----------------------------------------------
+            string path = Windows.Storage.ApplicationData.Current.LocalFolder.Path + @"\\" + fileName;
+            System.IO.File.AppendAllText(path, content);
+            //test copy func
+            //string path1 = Windows.Storage.ApplicationData.Current.LocalFolder.Path + @"\\filecopy.txt";
+            //string sourcePath = @"C:\Users\Public\filecopy.txt";
+            //string targetPath = @"C:\Users\Public\filecopy.txt";
+
+            //System.IO.File.Copy(path, KnownFolders.SavedPictures.Path, true);
+            //System.IO.File.Copy()
+
+            //----------------------------------------------------
+            //Windows.Storage.StorageFolder storageFolder =
+            //    Windows.Storage.ApplicationData.Current.LocalFolder;
+            //Windows.Storage.StorageFile sampleFile =
+            //    await storageFolder.GetFileAsync("dataReceive.txt");
+
+            //await Windows.Storage.FileIO.WriteTextAsync(sampleFile, content);
+            //--------------------------------------------------------
+            //Windows.Storage.StorageFolder storageFolder =
+            //    Windows.Storage.ApplicationData.Current.LocalFolder;
+            //Windows.Storage.StorageFile sampleFile =
+            //    await storageFolder.GetFileAsync("dataReceive.txt");
+            //var buffer = Windows.Security.Cryptography.CryptographicBuffer.ConvertStringToBinary(
+            //            content, Windows.Security.Cryptography.BinaryStringEncoding.Utf8);
+            //await Windows.Storage.FileIO.WriteBufferAsync(sampleFile, buffer);
+        }
+
+
+        public async void SaveTotxt_use_savePicker(string content)
+        {
+            try
+            {
+                //Windows.Storage.CachedFileManager.DeferUpdates(file_user_save_picker);
+                await Windows.Storage.FileIO.AppendTextAsync(file_user_save_picker, content);
+
+            }
+            catch (Exception ex)
+            {
+                tblock_ZoomLevel.Text = ex.Message;
+                //file_user_save_picker = await savePicker.PickSaveFileAsync();
+            }
+        }
+
+        public async void SaveTotxt_use_savePickerAndPermission(string content)
+        {
+            //------------------------------------------------------------
+            await Windows.Storage.FileIO.AppendTextAsync(sf_user_savePicker_and_permission, content);
 
         }
 
@@ -4077,15 +4151,15 @@ namespace TrackingFlight_v2_0109
                 //tblock_Current_Timer.Text = Data.Time;
                 sDisplayTimeNotFormat = Data.Time;
                 //format hour:min:sec
-                if (-1 != Data.Time.IndexOf('.'))//have '.' in Data.Time 82754.7
-                    tblock_Current_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 6) + ':'
-                            + Data.Time.Substring(Data.Time.Length - 6, 2) + ':' + Data.Time.Substring(Data.Time.Length - 4, 4);
-                else
-                    tblock_Current_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 4) + ':'
-                            + Data.Time.Substring(Data.Time.Length - 4, 2) + ':' + Data.Time.Substring(Data.Time.Length - 2, 2);
+                try
+                {
+                    tblock_Current_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 7) + ':'
+                            + Data.Time.Substring(Data.Time.Length - 7, 2) + ':' + Data.Time.Substring(Data.Time.Length - 5, 5);
 
-                slider_AdjTime.Value = 100 * (Convert.ToDouble(sDisplayTimeNotFormat) - Convert.ToDouble(sStartTime)) /
-                    (Convert.ToDouble(sStopTime) - Convert.ToDouble(sStartTime));
+                    slider_AdjTime.Value = 100 * (Convert.ToDouble(sDisplayTimeNotFormat) - Convert.ToDouble(sStartTime)) /
+                        (Convert.ToDouble(sStopTime) - Convert.ToDouble(sStartTime));
+                }
+                catch { }
 
                 index++;
                 if (index == limitSpeed)
@@ -4283,6 +4357,7 @@ namespace TrackingFlight_v2_0109
             rotate_needle_speed(slider_test.Value);
             rotate_needle_speed1(slider_test.Value);
             rotate_needle_speed2(slider_test.Value);
+            myMap.Heading = slider_test.Value;
         }
 
 
@@ -4891,7 +4966,7 @@ namespace TrackingFlight_v2_0109
             im_needle_fuel.VerticalAlignment = VerticalAlignment.Top;
 
             im_needle_fuel.Margin = new Windows.UI.Xaml.Thickness
-                (dComPass_mid_X - im_needle_fuel.Width / 2, dComPass_mid_Y  - im_needle_fuel.Width / 2, 0, 0);
+                (dComPass_mid_X - im_needle_fuel.Width / 2, dComPass_mid_Y - im_needle_fuel.Width / 2, 0, 0);
             BackgroundDisplay.Children.Add(im_needle_fuel);
         }
 
