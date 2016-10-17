@@ -277,6 +277,9 @@ namespace TrackingFlight_v2_0109
             tblock_LatAndLon.Text = Math.Round(tappedGeoPosition.Latitude, 8).ToString()//Lấy 8 chữ số thập phân
                                     + ", " + Math.Round(tappedGeoPosition.Longitude, 8).ToString();//Lấy 8 chữ số thập phân
             //NotifyUser(status, NotifyType.StatusMessage);
+
+            //draw path when user tap on maps
+            Draw_Polygon_When_Tap_On_Map(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, tappedGeoPosition.Altitude);
         }
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>
@@ -5255,6 +5258,76 @@ namespace TrackingFlight_v2_0109
                 (x), (y), 0, 0);
             BackgroundDisplay.Children.Add(TestRinslice);
 
+        }
+        //draw color for airport
+        public void draw_color_for_NhaTrang_airport(List<BasicGeoposition> lat_lon_draw_color)
+        {
+            double centerLatitude = myMap.Center.Position.Latitude;
+            double centerLongitude = myMap.Center.Position.Longitude;
+            MapPolygon polygon_draw_color = new MapPolygon();
+            polygon_draw_color.Path = new Geopath(lat_lon_draw_color);
+
+            polygon_draw_color.ZIndex = 1;
+            polygon_draw_color.FillColor = Colors.Red;
+            polygon_draw_color.StrokeColor = Colors.Blue;
+            polygon_draw_color.StrokeThickness = 3;
+            polygon_draw_color.StrokeDashed = false;
+            myMap.MapElements.Add(polygon_draw_color);
+        }
+        //draw polygon when user tap on maps
+
+        Windows.UI.Xaml.Controls.Maps.MapPolyline Path_When_User_Tap = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
+        Windows.UI.Xaml.Controls.Maps.MapPolygon Polygon_When_User_Tap = new Windows.UI.Xaml.Controls.Maps.MapPolygon();
+        double old_lat_tap_on_map = 0, old_lon_tap_on_map;
+        int number_of_tap = 0;
+
+        List<BasicGeoposition> positions_path_tap_on_map = new List<BasicGeoposition>();
+        /// <summary>
+        /// Chấm điểm có màu vàng tại vị trí lat, lon, Alt
+        /// Vẽ vị trí máy bay và góc quay của máy bay
+        /// Vẽ đường thẳng nối tới điểm đích
+        /// </summary>
+        /// <param name="lat"></param>
+        /// <param name="lon"></param>
+        /// <param name="alt"></param>
+        /// <param name="dHeading"></param>
+        void Draw_Polygon_When_Tap_On_Map(double lat, double lon, double alt)
+        {
+
+
+            MapIcon icon_tap_on_map = new MapIcon();
+            icon_tap_on_map.Location = new Geopoint(new BasicGeoposition()
+            {
+                Latitude = lat,
+                Longitude = lon,
+                Altitude = alt
+            });
+            icon_tap_on_map.NormalizedAnchorPoint = new Point(0.5, 1.0);
+            icon_tap_on_map.Title = "Pos " + (++number_of_tap).ToString();
+            myMap.MapElements.Add(icon_tap_on_map);
+
+
+
+
+            Polygon_When_User_Tap.ZIndex = 1;
+            Polygon_When_User_Tap.FillColor = Colors.Red;
+            Polygon_When_User_Tap.StrokeColor = Colors.Blue;
+            Polygon_When_User_Tap.StrokeThickness = 3;
+            Polygon_When_User_Tap.StrokeDashed = false;
+
+            positions_path_tap_on_map.Add(new BasicGeoposition() { Latitude = lat, Longitude = lon });//to turn on auto zoom mode
+
+            if ((old_lat_tap_on_map != 0.0) && (positions_path_tap_on_map.Count > 2))//Vì lúc đầu chưa có dữ liệu nên k hiện máy bay
+            {
+                //Windows.UI.Xaml.Controls.Maps.MapPolyline mapPolyline = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
+                Polygon_When_User_Tap.Path = new Geopath(positions_path_tap_on_map);
+                myMap.MapElements.Remove(Polygon_When_User_Tap);
+                myMap.MapElements.Add(Polygon_When_User_Tap);
+
+            }
+            //Updata giá trí mới
+            old_lat_tap_on_map = lat;
+            old_lon_tap_on_map = lon;
         }
         //*********************************************************************************************
         //end of class
