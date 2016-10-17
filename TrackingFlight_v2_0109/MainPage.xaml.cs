@@ -624,6 +624,7 @@ namespace TrackingFlight_v2_0109
                 {
                     //status.Text = ex.Message;
                     //loi frame
+                    Listen();
                 }
 
             }
@@ -635,6 +636,7 @@ namespace TrackingFlight_v2_0109
                     dataReaderObject.DetachStream();
                     dataReaderObject = null;
                 }
+                //Listen();
             }
         }
 
@@ -671,34 +673,39 @@ namespace TrackingFlight_v2_0109
             //byte checkerror;
             if (bytesRead > 0)
             {
-                //byte[] data_check_error = new byte[bytesRead];
-                //byte[] data_right = new byte[bytesRead];
-                //Int16 temp_index_data_right = 0;
+                byte[] data_check_error = new byte[bytesRead];
+                byte[] data_right = new byte[bytesRead];
+                Int16 temp_index_data_right = 0;
                 try
                 {
                     //sTemp = dataReaderObject.ReadString(bytesRead);
-                    strDataFromSerialPort += dataReaderObject.ReadString(bytesRead);
-                    processDataToDrawTrajactory();
-
-                    ////check error, char > 127 => not string
-                    //dataReaderObject.ReadBytes(data_check_error);
-                    //for (int temp_index = 0; temp_index < bytesRead; temp_index++)
-                    //{
-                    //    if (data_check_error[temp_index] < 127)
-                    //    {
-                    //        data_right[temp_index_data_right] = data_check_error[temp_index];
-                    //        temp_index_data_right++;
-                    //    }
-                    //}
-                    //strDataFromSerialPort += System.Text.Encoding.UTF8.GetString(data_right);
+                    //strDataFromSerialPort += dataReaderObject.ReadString(bytesRead);
                     //processDataToDrawTrajactory();
+
+                    //check error, char > 127 => not string
+                    dataReaderObject.ReadBytes(data_check_error);
+                    for (int temp_index = 0; temp_index < bytesRead; temp_index++)
+                    {
+                        if (data_check_error[temp_index] < 127)
+                        {
+                            data_right[temp_index_data_right] = data_check_error[temp_index];
+                            temp_index_data_right++;
+                        }
+                    }
+                    //0 = data_right[0]: all data is error
+                    if (0 != data_right[0])
+                    {
+                        strDataFromSerialPort += System.Text.Encoding.UTF8.GetString(data_right);
+                        processDataToDrawTrajactory();
+                    }
+
                 }
                 catch (Exception ex)
                 {
 
                     errorFrame += 1;
                     tblock_Current_Timer.Text = "frame error: " + strDataFromSerialPort + ", Error: " + ex.Message + "No Error: " + errorFrame.ToString();
-
+                    Listen();
                 }
                 //
 
@@ -3031,12 +3038,36 @@ namespace TrackingFlight_v2_0109
                 else
                 {
                     index_draw_path = 1;
-                    line_path_of_flight.Path = new Geopath(new List<BasicGeoposition>() {
-                    new BasicGeoposition() {Latitude = old_Lat, Longitude = old_Lon},
-                    new BasicGeoposition() {Latitude = lat, Longitude = lon}
-                    });
+                    if (bConnectOk)
+                    {
+                        line_path_of_flight.Path = new Geopath(new List<BasicGeoposition>() {
+                        new BasicGeoposition() {Latitude = old_Lat, Longitude = old_Lon},
+                        new BasicGeoposition() {Latitude = lat, Longitude = lon}
+                        });
 
-                    myMap.MapElements.Add(line_path_of_flight);
+                        myMap.MapElements.Add(line_path_of_flight);
+                    }
+                    else
+                    {
+                        //--------------------------------------
+                        //read file press pause remove all of object
+                        //Vẽ quỹ đạo
+                        MapPolyline lineToRmove = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
+
+                        lineToRmove.Path = new Geopath(new List<BasicGeoposition>() {
+                            new BasicGeoposition() {Latitude = old_Lat, Longitude = old_Lon},
+                            //San Bay Tan Son Nhat
+                            new BasicGeoposition() {Latitude = lat, Longitude = lon}
+                            });
+
+                        lineToRmove.StrokeColor = Colors.Red;
+                        lineToRmove.StrokeThickness = 2;
+                        lineToRmove.StrokeDashed = false;//nét liền
+
+                        //myMap.MapElements.Remove(mapPolyline);
+                        myMap.MapElements.Add(lineToRmove);
+                    }
+
                 }
 
                 //auto zoom
@@ -4191,12 +4222,14 @@ namespace TrackingFlight_v2_0109
         private void Pause_When_ReadFile()
         {
             bPlay = false;
-            myMap.MapElements.Clear();
+            
             foreach (MapPolyline polyLines in polyLineToRemove)
             {
                 myMap.Children.Remove(polyLines);
                 myMap.MapElements.Remove(polyLines);
             }
+            //myMap.Children.Clear();
+            myMap.MapElements.Clear();
             positions.Clear();
             streamReader.BaseStream.Seek(0, SeekOrigin.Current);
         }
