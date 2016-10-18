@@ -129,6 +129,7 @@
     <Content Include="Assets\needle_speed.png" />
     <Content Include="Assets\Speed_full.PNG" />
     <Content Include="Assets\Speed_Full_v2.png" />
+    <Content Include="Assets\needle_aagle_to_des.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />

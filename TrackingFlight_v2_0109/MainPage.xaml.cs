@@ -62,6 +62,7 @@ using Windows.Storage;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using Windows.UI;
+using Windows.UI.Popups;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -142,6 +143,9 @@ namespace TrackingFlight_v2_0109
 
             Dis_Setup();
 
+            //show_alert("H!");
+            //test_message();
+
         }
         //*****************************************************************
         /*
@@ -179,6 +183,8 @@ namespace TrackingFlight_v2_0109
             myMap.Loaded += MyMap_Loaded;
             //Hien toa do luc nhan chuot trai
             myMap.MapTapped += MyMap_MapTapped;
+            //Clear or Done when draw polygon
+            //myMap.MapRightTapped += Map_RightTapped;
             //change heading
             myMap.HeadingChanged += MyMap_HeadingChanged;
             myMap.ZoomLevelChanged += MyMap_ZoomLevelChanged;
@@ -281,6 +287,22 @@ namespace TrackingFlight_v2_0109
             //draw path when user tap on maps
             Draw_Polygon_When_Tap_On_Map(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, tappedGeoPosition.Altitude);
         }
+
+        /// <summary>
+        /// draw, clear or done polygon
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        //private void Map_RightTapped(Windows.UI.Xaml.Controls.Maps.MapControl sender, RightTappedRoutedEventArgs args)
+        //{
+        //    var tappedGeoPosition = args.Location.Position;
+
+        //    //draw path when user tap on maps
+        //    //Draw_Polygon_When_Tap_On_Map(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, tappedGeoPosition.Altitude);
+        //    //MenuFlyout menu_draw_polygon = new MenuFlyout();
+        //    //menu_draw_polygon.Placement = FlyoutPlacementMode.Right;
+        //    //menu_draw_polygon.me
+        //}
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         /// <summary>
         /// Rorate needle when change heading
@@ -1221,7 +1243,17 @@ namespace TrackingFlight_v2_0109
 
                         ShowSpeed_Alt_Position();
 
+                        if(Data.Speed != null)
+                            if((Convert.ToDouble(Data.Speed) < 100) && (Convert.ToDouble(Data.Pitch) > 100))
+                            {
+                                try
+                                {
+                                    dialogTask.Cancel();
+                                }
+                                catch { }
 
+                                show_alert("please decrease pitch angle!");
+                            }
 
                     }
                     //**********************************************************************
@@ -1414,13 +1446,12 @@ namespace TrackingFlight_v2_0109
             ShowSpeed_Alt_Position();
         }
 
+        double angle_position_of_flight_to_des;
         /// <summary>
         /// show speed, alt, trajectory, distance,...
         /// </summary>
         void ShowSpeed_Alt_Position()
         {
-
-            double temp_angle;
 
             try
             {
@@ -1460,7 +1491,7 @@ namespace TrackingFlight_v2_0109
                     //Tan Son Nhat Airport dLatDentination, dLonDentination
                     //Point2: 10.113574, 106.052579
                     dDistanToTaget = distance(dLatGol, dLonGol, Convert.ToDouble(Data.Altitude), dLatDentination, dLonDentination, 0);
-                    temp_angle = angleFromCoordinate(dLatGol, dLonGol, dLatDentination, dLonDentination);
+                    angle_position_of_flight_to_des = angleFromCoordinate(dLatGol, dLonGol, dLatDentination, dLonDentination);
                     //Ta hiện khoảng cách trên đường thẳng chứ không hiện textbox nên bỏ dòng sau
                     //tbShowDis.Text = "Distance to Dentination:  " + dDistanToTaget.ToString() + "\n";
                     //Tinh goc giua 2 diem từ vị trí máy bay đến đích
@@ -1469,15 +1500,19 @@ namespace TrackingFlight_v2_0109
                     //Ngay 21/1/2016 Show Data
                     //ShowDistance(0, temp_angle + 90, dDistanToTaget.ToString() + " Meter", 30 * myMap.ZoomLevel / 22, dLatGol, dLonGol, 1);//Purple
                     //**********optimize 6/3/2016
-                    ShowDistance_optimize(0, temp_angle + 90, dDistanToTaget.ToString() + " Meter", 50 * myMap.ZoomLevel / 22, dLatGol, dLonGol);//Purple
+                    ShowDistance_optimize(0, angle_position_of_flight_to_des + 90, dDistanToTaget.ToString() + " Meter", 50 * myMap.ZoomLevel / 22, dLatGol, dLonGol);//Purple
 
                 }
                 if (bSetup)
                 {
                     //Neu angle la null thi convert k duoc
                     if (Data.Angle != "")
+                    {
                         DisplayDataOnMap(Convert.ToDouble(Data.Roll) / 10, Convert.ToDouble(Data.Pitch) / 10, Convert.ToDouble(Data.Speed),
                             Convert.ToDouble(Data.Altitude), 0, Convert.ToDouble(Data.Angle));
+                        //draw angle, rotate needle from posion of flight to des
+                        rotate_needle_ang_to_des(Convert.ToDouble(Data.Angle) - angle_position_of_flight_to_des);
+                    }
                     else
                         DisplayDataOnMap(Convert.ToDouble(Data.Roll) / 10, Convert.ToDouble(Data.Pitch) / 10, Convert.ToDouble(Data.Speed),
                             Convert.ToDouble(Data.Altitude), 0, 0.0);
@@ -1613,9 +1648,17 @@ namespace TrackingFlight_v2_0109
             DrawComPass_speed_motor(85, screenHeight - 130, 65, 0);
             add_needle_of_speed1(85, screenHeight - 130, 65);
             rotate_needle_speed1(0);
-            DrawComPass_speed_motor(400, screenHeight - 130, 65, 0);
-            add_needle_of_speed2(400, screenHeight - 130, 65);
-            rotate_needle_speed2(0);
+            //DrawComPass_speed_motor(400, screenHeight - 130, 65, 0);
+            //add_needle_of_speed2(400, screenHeight - 130, 65);
+            //rotate_needle_speed2(0);
+
+            //angle to destination
+            //DrawComPass_angle_to_des(240, screenHeight - 130, 65, 0);
+            //add_needle_ang_to_des(240, screenHeight - 130, 65);
+            //rotate_needle_ang_to_des(30);
+            DrawComPass_angle_to_des(400, screenHeight - 130, 65, 0);
+            add_needle_ang_to_des(400, screenHeight - 130, 65);
+            rotate_needle_ang_to_des(-90);
             //add 4 button
             button1.Margin = new Windows.UI.Xaml.Thickness(20, screenHeight - 46, 00, 00);
             BackgroundDisplay.Children.Remove(button1);
@@ -3345,6 +3388,7 @@ namespace TrackingFlight_v2_0109
                     strDataFromSerialPort = streamReader.ReadLine();
 
                     processDataToGetInf();
+                    
 
                 }
                 sStartTime = Data.Time;
@@ -3365,6 +3409,7 @@ namespace TrackingFlight_v2_0109
                     strDataFromSerialPort = streamReader.ReadLine();
 
                     processDataToGetInf();
+                    //processToDrawTrajactory();
 
                 }
                 sStopTime = Data.Time;
@@ -3382,7 +3427,93 @@ namespace TrackingFlight_v2_0109
             }
             catch { }
 
+        }
 
+        /// <summary>
+        /// return start time, End of time
+        /// </summary>
+        async void ReadInfOfFileToDrawPath()
+        {
+
+            try
+            {
+                openPicker = new Windows.Storage.Pickers.FileOpenPicker();
+                openPicker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+                openPicker.SuggestedStartLocation =
+                    Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+
+                openPicker.FileTypeFilter.Add(".txt");
+
+                Windows.Storage.StorageFile file = await openPicker.PickSingleFileAsync();
+
+                Stream stream = (await file.OpenReadAsync()).AsStreamForRead();
+
+                streamReader = new StreamReader(stream);
+                setupReadfile = true;
+                //Int32 index = 0;
+                Data.Time = null;
+                while (null == Data.Time)
+
+                {
+                    strDataFromSerialPort = streamReader.ReadLine();
+
+                    //processDataToGetInf();
+                    processToDrawTrajactory();
+                }
+                sStartTime = Data.Time;
+                //format hour:min:sec
+                if (-1 != Data.Time.IndexOf('.'))//have '.' in Data.Time 82754.7
+                    tblock_Start_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 6) + ':'
+                            + Data.Time.Substring(Data.Time.Length - 6, 2) + ':' + Data.Time.Substring(Data.Time.Length - 4, 4);
+                else
+                    tblock_Start_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 4) + ':'
+                            + Data.Time.Substring(Data.Time.Length - 4, 2) + ':' + Data.Time.Substring(Data.Time.Length - 2, 2);
+
+                streamReader.BaseStream.Seek(-1, SeekOrigin.End);   //đưa con trỏ về cuối của file
+                                                                    //double _position = streamReader.BaseStream.Position;//lấy số ký tự của file txt
+                streamReader.BaseStream.Seek(-2000, SeekOrigin.Current);//dịch con trỏ từ cuối file về lui khoảng 2000 ký tự
+                                                                        //chúng ta sẽ đọc được thời điểm bay cuối cùng
+                while (streamReader.Peek() >= 0)
+                {
+                    strDataFromSerialPort = streamReader.ReadLine();
+
+                    //processDataToGetInf();
+                    processToDrawTrajactory();
+                }
+                sStopTime = Data.Time;
+                //format hour:min:sec
+                if (-1 != Data.Time.IndexOf('.'))//have '.' in Data.Time 82754.7
+                    tblock_End_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 6) + ':'
+                            + Data.Time.Substring(Data.Time.Length - 6, 2) + ':' + Data.Time.Substring(Data.Time.Length - 4, 4);
+                else
+                    tblock_End_Timer.Text = Data.Time.Substring(0, Data.Time.Length - 4) + ':'
+                            + Data.Time.Substring(Data.Time.Length - 4, 2) + ':' + Data.Time.Substring(Data.Time.Length - 2, 2);
+                Data.Time = sStartTime;
+                streamReader.BaseStream.Seek(0, SeekOrigin.Begin);
+                streamReader = new StreamReader(stream);
+                editTimeWhenChangeslider();
+
+                //Vẽ quỹ đạo
+                positions.Clear();
+                while (streamReader.Peek() >= 0)
+                {
+                    strDataFromSerialPort = streamReader.ReadLine();
+
+                    //processDataToGetInf();
+                    processToDrawTrajactory();
+                }
+                MapPolyline lineToRmove = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
+
+                lineToRmove.Path = new Geopath(positions);
+
+                lineToRmove.StrokeColor = Colors.Red;
+                lineToRmove.StrokeThickness = 2;
+                lineToRmove.StrokeDashed = false;//nét liền
+
+                //myMap.MapElements.Remove(mapPolyline);
+                myMap.MapElements.Add(lineToRmove);
+            }
+            catch { }
 
         }
         /// <summary>
@@ -4354,6 +4485,7 @@ namespace TrackingFlight_v2_0109
         private void bt_autoZoom_on_click(object sender, RoutedEventArgs e)
         {
             bAutoZoom = true;
+            SetMapPolyline(positions);
         }
 
         /// <summary>
@@ -4402,7 +4534,8 @@ namespace TrackingFlight_v2_0109
             rotate_needle_speed(slider_test.Value);
             rotate_needle_speed1(slider_test.Value);
             rotate_needle_speed2(slider_test.Value);
-            myMap.Heading = slider_test.Value;
+            //myMap.Heading = slider_test.Value;
+            rotate_needle_ang_to_des(slider_test.Value);
         }
 
 
@@ -4992,6 +5125,321 @@ namespace TrackingFlight_v2_0109
             //add_needle_of_speed(dComPass_mid_X, dComPass_mid_Y, dComPass_R);
             //rotate_needle_speed(0);
         }
+
+        void DrawComPass_angle_to_des(double dComPass_mid_X, double dComPass_mid_Y, double dComPass_R, double Angle_Flight)
+        {
+
+            double Angle_Rotate = Angle_Flight + 90;
+            //Tao but ve
+            //Graphics formGraphic = this.CreateGraphics();
+            //Pen whitePen = new Pen(Color.White, 2);
+            //Các bút vẽ cần thiết bên windows.UI
+            SolidColorBrush Black_pen = new SolidColorBrush(Colors.Black);
+            SolidColorBrush BlushRectangle2 = new SolidColorBrush(Colors.Brown);
+            SolidColorBrush BlushRectangle3 = new SolidColorBrush(Colors.Green);
+            SolidColorBrush BlushRectangle4 = new SolidColorBrush(Colors.Black);
+            SolidColorBrush whitePen = new SolidColorBrush(Colors.White);
+            SolidColorBrush BlushOfString1 = new SolidColorBrush(Colors.White);
+            SolidColorBrush BlushOfArrow = new SolidColorBrush(Colors.Green);
+            //Ve background
+
+            double R_BackRound = dComPass_R + 2;
+
+            //ngay 28/09/2015
+            //formGraphic.DrawArc(whitePen, 200, 50, 200, 200, 210, 120);
+
+            //Ve duong tron ben trong I(fmidXComPass, dComPass_mid_Y) ban kinh fRIntoComPass
+            double dComPass_R_Into;
+            dComPass_R_Into = dComPass_R - 20;
+            //Ve duong thang do chia goc 15 do co 2 diem thuoc 2 duong tron
+            double fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into;
+
+            //***********************************************************
+            /*
+             * *Ngày 29/09/2015
+             */
+
+            /************************************************************/
+            //Ve do chia cho Compass
+            //Ve duong tron ben ngoai I(dComPass_mid_X, dComPass_mid_Y) ban kinh dComPass_R
+            //DrawArcCompass(whitePen, (dComPass_mid_X - dComPass_R), dComPass_mid_Y - dComPass_R,
+            //    2 * dComPass_R, 2 * dComPass_R, 180, 120);
+            //Ve duong tron ben trong I(fmidXComPass, dComPass_mid_Y) ban kinh fRIntoComPass
+            //double dComPass_R_Into;
+            dComPass_R_Into = dComPass_R - 10;
+            //Ve duong thang do chia goc 15 do co 2 diem thuoc 2 duong tron
+            //Ve tai 0, 30, 60, 90, 120, 150, 21, 24, 27, 30, 33 voi duong dai 15
+            //fBalance_R = fBalance_R_Into + 10;
+            //Ang_Rotate phu thuoc vao la ban
+
+            /*************************************************/
+            //Ve chuoi N, S, W, E 30, 60, 12, 15,...
+            double draw_String_index;
+            //Font drawFont = new Font("Arial", 12);
+            double dSizeoftext = 14;
+            double dOpacity = 1.0;
+
+            //*********************************************
+            //viet tat ca cac so xuat hien trong Compass
+            Angle_Rotate = 90;
+            draw_String_index = Angle_Rotate;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("00", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 30;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("03", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 60;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("06", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 8, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 90;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("09", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 120;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("12", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 150;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("15", dSizeoftext, Black_pen, fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 180;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("18", dSizeoftext, Black_pen, fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 210;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("21", dSizeoftext, Black_pen, fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 240;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("24", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 7, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 270;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("27", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 9, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 300;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("30", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 10, dOpacity);
+            }
+            draw_String_index = Angle_Rotate - 330;
+            {
+                dComPass_R_Into = dComPass_R - 22;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * draw_String_index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * draw_String_index / 180) + dComPass_mid_Y;
+                DrawString("33", dSizeoftext, new SolidColorBrush(Colors.Black), fArc_X_15_Into - 10, fArc_Y_15_Into - 10, dOpacity);
+            }
+            //-------------------------------------------------------------------------------------
+            //DrawString("RPM", 16, new SolidColorBrush(Colors.Black), dComPass_mid_X - 20, dComPass_mid_Y + 10, dOpacity);
+            //DrawString("x100", 14, new SolidColorBrush(Colors.Black), dComPass_mid_X - 18, dComPass_mid_Y - 28, dOpacity);
+            
+            ////********************************************************************************
+            //************************************************************************************************
+            //Ve tai 0, 10, 20, 40, 50, 70, 80, 100, ... voi duong dai 15
+            Angle_Rotate = 180;
+            dComPass_R_Into = dComPass_R - 10;
+            for (double index = Angle_Rotate; index <= 360 + Angle_Rotate; index += 10)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Black), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            }
+            //Ve tai 5, 15, 25, 35, 45, 55, 65, ... voi duong dai 15
+            //fBalance_R = fBalance_R_Into + 10;
+            dComPass_R_Into = dComPass_R - 5;
+            for (double index = Angle_Rotate; index <= 360 + Angle_Rotate; index += 5)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Black), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            }
+            //------------------------------------------------------------------------------------------
+            //vẽ từ 60 đến 180 với màu Black
+            //Ve duong tron ben ngoai I(dComPass_mid_X, dComPass_mid_Y) ban kinh dComPass_R
+            //DrawArcCompass(new SolidColorBrush(Colors.Black), (dComPass_mid_X - R_BackRound), dComPass_mid_Y - R_BackRound,
+            //    2 * R_BackRound, 2 * R_BackRound, 210, 120);
+
+            dComPass_R_Into = dComPass_R - 10;
+            Angle_Rotate = 30;
+            for (double index = Angle_Rotate; index <= 330 + Angle_Rotate; index += 30)
+            {
+                fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+
+                fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+                fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+                DrawLine(new SolidColorBrush(Colors.Black), 4, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+                //Viet chu North tai vi tri goc ban dau Angle_Rotate
+
+            }
+            ////*********************************************************
+            ////Ve tai 0, 10, 20, 40, 50, 70, 80, 100, ... voi duong dai 15
+            //dComPass_R_Into = dComPass_R - 10;
+            //for (double index = Angle_Rotate; index <= 150 + Angle_Rotate; index += 10)
+            //{
+            //    fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+            //    fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+            //    fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+            //    fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+            //    DrawLine(new SolidColorBrush(Colors.Black), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            //}
+            ////Ve tai 5, 15, 25, 35, 45, 55, 65, ... voi duong dai 15
+            ////fBalance_R = fBalance_R_Into + 10;
+            //dComPass_R_Into = dComPass_R - 5;
+            //for (double index = Angle_Rotate; index <= 150 + Angle_Rotate; index += 5)
+            //{
+            //    fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+            //    fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+            //    fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+            //    fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+            //    DrawLine(new SolidColorBrush(Colors.Black), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            //}
+            //---------------------------------------------------------------------------
+            //vẽ từ 180 đến 240 với màu Black
+            //Ve duong tron ben ngoai I(dComPass_mid_X, dComPass_mid_Y) ban kinh dComPass_R
+            DrawArcCompass(new SolidColorBrush(Colors.Black), (dComPass_mid_X - R_BackRound), dComPass_mid_Y - R_BackRound,
+                2 * R_BackRound, 2 * R_BackRound, 180, 180);
+
+            //dComPass_R_Into = dComPass_R - 10;
+            //Angle_Rotate = 330;
+            //for (double index = Angle_Rotate; index <= 60 + Angle_Rotate; index += 30)
+            //{
+            //    fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+            //    fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+
+            //    fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+            //    fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+            //    DrawLine(new SolidColorBrush(Colors.Black), 4, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            //    //Viet chu North tai vi tri goc ban dau Angle_Rotate
+
+            //}
+            ////*********************************************************
+            ////Ve tai 0, 10, 20, 40, 50, 70, 80, 100, ... voi duong dai 15
+            //dComPass_R_Into = dComPass_R - 10;
+            //for (double index = Angle_Rotate; index <= 60 + Angle_Rotate; index += 10)
+            //{
+            //    fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+            //    fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+            //    fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+            //    fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+            //    DrawLine(new SolidColorBrush(Colors.Black), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            //}
+            ////Ve tai 5, 15, 25, 35, 45, 55, 65, ... voi duong dai 15
+            ////fBalance_R = fBalance_R_Into + 10;
+            //dComPass_R_Into = dComPass_R - 5;
+            //for (double index = Angle_Rotate; index <= 60 + Angle_Rotate; index += 5)
+            //{
+            //    fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+            //    fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+            //    fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+            //    fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+            //    DrawLine(new SolidColorBrush(Colors.Black), 1, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            //}
+            ////Black
+            //dComPass_R_Into = dComPass_R - 10;
+            //Angle_Rotate = 180;
+            //for (double index = Angle_Rotate; index <= 30 + Angle_Rotate; index += 30)
+            //{
+            //    fArc_X_15 = dComPass_R * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+            //    fArc_Y_15 = -dComPass_R * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+
+            //    fArc_X_15_Into = dComPass_R_Into * (double)Math.Cos(Math.PI * index / 180) + dComPass_mid_X;
+            //    fArc_Y_15_Into = -dComPass_R_Into * (double)Math.Sin(Math.PI * index / 180) + dComPass_mid_Y;
+            //    DrawLine(new SolidColorBrush(Colors.Black), 3, fArc_X_15, fArc_Y_15, fArc_X_15_Into, fArc_Y_15_Into);
+            //    //Viet chu North tai vi tri goc ban dau Angle_Rotate
+
+            //}
+            //Black
+            //Ve duong tron ben ngoai I(dComPass_mid_X, dComPass_mid_Y) ban kinh dComPass_R
+            //goc 0 do nằm ngang tính theo kim đồng hồ
+            DrawArcCompass(new SolidColorBrush(Colors.Black), (dComPass_mid_X - R_BackRound), dComPass_mid_Y - R_BackRound,
+                2 * R_BackRound, 2 * R_BackRound, 0, 180);
+            //add_needle_of_speed(dComPass_mid_X, dComPass_mid_Y, dComPass_R);
+            //rotate_needle_speed(0);
+        }
+
+        Image im_needle_angle_to_des = new Image();
+        /// <summary>
+        /// add needle angle to des
+        /// </summary>
+        /// <param name="dComPass_mid_X"></param>
+        /// <param name="dComPass_mid_Y"></param>
+        /// <param name="dComPass_R"></param>
+        private void add_needle_ang_to_des(double dComPass_mid_X, double dComPass_mid_Y, double dComPass_R)
+        {
+            BackgroundDisplay.Children.Remove(im_needle_angle_to_des);
+            im_needle_angle_to_des.Source = new BitmapImage(new Uri("ms-appx:///Assets/needle_aagle_to_des.png"));
+            im_needle_angle_to_des.Width = 130;//Ảnh này hình vuông nên Width = Height = min(Height, Width)
+
+            //imgAuto_airSpeed.RenderTransform
+            im_needle_angle_to_des.Opacity = 1;
+            im_needle_angle_to_des.HorizontalAlignment = HorizontalAlignment.Left;
+            im_needle_angle_to_des.VerticalAlignment = VerticalAlignment.Top;
+
+            im_needle_angle_to_des.Margin = new Windows.UI.Xaml.Thickness
+                (dComPass_mid_X - im_needle_speed1.Width / 2, dComPass_mid_Y - im_needle_speed1.Width / 2, 0, 0);
+            BackgroundDisplay.Children.Add(im_needle_angle_to_des);
+        }
+
+        /// <summary>
+        /// rotate needle angle to des
+        /// </summary>
+        /// <param name="angle_Yaw"></param>
+        public void rotate_needle_ang_to_des(double angle_Yaw)
+        {
+
+            //BackgroundDisplay.Children.Remove(img_FliCom_Out);
+            //center width/2, height/2
+            im_needle_angle_to_des.RenderTransform = new RotateTransform()
+            {
+
+                Angle = angle_Yaw + 20,
+                CenterX = 65,
+                CenterY = 65
+            };
+        }
+
         Image im_needle_fuel = new Image();
         /// <summary>
         /// add image of needle for indicator fuel
@@ -5279,6 +5727,43 @@ namespace TrackingFlight_v2_0109
         Windows.UI.Xaml.Controls.Maps.MapPolyline Path_When_User_Tap = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
         Windows.UI.Xaml.Controls.Maps.MapPolygon Polygon_When_User_Tap = new Windows.UI.Xaml.Controls.Maps.MapPolygon();
         double old_lat_tap_on_map = 0, old_lon_tap_on_map;
+
+        private void bt_clear_polygon(object sender, RoutedEventArgs e)
+        {
+            number_of_tap = 0;
+            positions_path_tap_on_map.Clear();
+            myMap.MapElements.Clear();
+            myMap.MapElements.Remove(Polygon_When_User_Tap);
+        }
+
+        private void bt_open_file_to_draw_path_click(object sender, RoutedEventArgs e)
+        {
+            ConnectDevices.Opacity = 0;// don't dispay ConnectDevices
+            myMap.Children.Clear();
+            myMap.MapElements.Clear();
+            positions.Clear();
+            positions = new List<BasicGeoposition>();
+            //ReadInfOfFile();
+            ReadInfOfFileToDrawPath();
+            //add tblock_Start_Timer, tblock_End_Timer, slider_AdjTime
+            BackgroundDisplay.Children.Remove(tblock_Start_Timer);
+            BackgroundDisplay.Children.Remove(tblock_End_Timer);
+            BackgroundDisplay.Children.Remove(slider_AdjTime);
+            BackgroundDisplay.Children.Add(tblock_Start_Timer);
+            BackgroundDisplay.Children.Add(tblock_End_Timer);
+            BackgroundDisplay.Children.Add(slider_AdjTime);
+            //Enable play, Pause, Speed Lisbox when Open_File is selected
+            bt_Play.IsEnabled = true;
+            bt_Pause.IsEnabled = true;
+            bt_Speed.IsEnabled = true;
+
+        }
+
+        private void bt_exit_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Exit();
+        }
+
         int number_of_tap = 0;
 
         List<BasicGeoposition> positions_path_tap_on_map = new List<BasicGeoposition>();
@@ -5308,7 +5793,6 @@ namespace TrackingFlight_v2_0109
 
 
 
-
             Polygon_When_User_Tap.ZIndex = 1;
             Polygon_When_User_Tap.FillColor = Colors.Red;
             Polygon_When_User_Tap.StrokeColor = Colors.Blue;
@@ -5329,10 +5813,221 @@ namespace TrackingFlight_v2_0109
             old_lat_tap_on_map = lat;
             old_lon_tap_on_map = lon;
         }
+
+        private bool _IsShiftPressed = false;
+        private bool _IsPointerPressed = false;
+
+        //press arrow
+        protected override void OnKeyDown(KeyRoutedEventArgs e)
+        {
+            // Handle Shift+F10
+            // Handle MenuKey
+
+            if (e.Key == Windows.System.VirtualKey.Shift)
+            {
+                _IsShiftPressed = true;
+            }
+
+            // Shift+F10
+            else if (_IsShiftPressed && e.Key == Windows.System.VirtualKey.F10)
+            {
+                var FocusedElement = FocusManager.GetFocusedElement() as UIElement;
+
+                SampleDataModel MyObject = null;
+                if (FocusedElement is ContentControl)
+                {
+                    MyObject = ((ContentControl)FocusedElement).Content as SampleDataModel;
+                }
+                ShowContextMenu(MyObject, FocusedElement, new Point(0, 0));
+                e.Handled = true;
+            }
+
+            // The 'Menu' key next to Right Ctrl on most keyboards
+            else if (e.Key == Windows.System.VirtualKey.Application)
+            {
+                var FocusedElement = FocusManager.GetFocusedElement() as UIElement;
+                SampleDataModel MyObject = null;
+                if (FocusedElement is ContentControl)
+                {
+                    MyObject = ((ContentControl)FocusedElement).Content as SampleDataModel;
+                }
+                ShowContextMenu(MyObject, FocusedElement, new Point(0, 0));
+                e.Handled = true;
+            }
+
+            base.OnKeyDown(e);
+        }
+
+        //press arrow
+        protected override void OnKeyUp(KeyRoutedEventArgs e)
+        {
+            if (e.Key == Windows.System.VirtualKey.Shift)
+            {
+                _IsShiftPressed = false;
+            }
+
+            base.OnKeyUp(e);
+        }
+        //protected override void OnHolding(HoldingRoutedEventArgs e)
+        //{
+        //    // Responding to HoldingState.Started will show a context menu while your finger is still down, while 
+        //    // HoldingState.Completed will wait until the user has removed their finger. 
+        //    if (e.HoldingState == Windows.UI.Input.HoldingState.Completed)
+        //    {
+        //        var PointerPosition = e.GetPosition(null);
+
+        //        var MyObject = (e.OriginalSource as FrameworkElement).DataContext as SampleDataModel;
+        //        ShowContextMenu(MyObject, null, PointerPosition);
+        //        e.Handled = true;
+
+        //        // This, combined with a check in OnRightTapped prevents the firing of RightTapped from
+        //        // launching another context menu
+        //        _IsPointerPressed = false;
+
+        //        // This prevents any scrollviewers from continuing to pan once the context menu is displayed.  
+        //        // Ideally, you should find the ListViewItem itself and only CancelDirectMinpulations on that item.  
+        //        //var ItemsToCancel = VisualTreeHelper.FindElementsInHostCoordinates(PointerPosition, ItemListView);
+        //        //foreach (var Item in ItemsToCancel)
+        //        //{
+        //        //    var Result = Item.CancelDirectManipulations();
+        //        //}
+        //    }
+
+        //    base.OnHolding(e);
+        //}
+
+        protected override void OnPointerPressed(PointerRoutedEventArgs e)
+        {
+            _IsPointerPressed = true;
+
+            base.OnPointerPressed(e);
+        }
+
+        protected override void OnRightTapped(RightTappedRoutedEventArgs e)
+        {
+            if (_IsPointerPressed)
+            {
+                var MyObject = (e.OriginalSource as FrameworkElement).DataContext as SampleDataModel;
+
+                ShowContextMenu(MyObject, null, e.GetPosition(null));
+                e.Handled = true;
+            }
+
+            base.OnRightTapped(e);
+        }
+
+        private void ShowContextMenu(SampleDataModel data, UIElement target, Point offset)
+        {
+            var MyFlyout = this.Resources["SampleContextMenu"] as MenuFlyout;
+
+            //System.Diagnostics.Debug.WriteLine("MenuFlyout shown '{0}', '{1}'", target, offset);
+
+            MyFlyout.ShowAt(target, offset);
+        }
+
+        //MessageDialog msgbox_alert = new MessageDialog("Would you like to greet the world with a \"Hello, world\"?", "Tracking Flight");
+        private IAsyncOperation<IUICommand> dialogTask;
+        public async void show_alert(string message)
+        {
+            MessageDialog dialog = new MessageDialog(message, "Information");
+            //await dialog.ShowAsync();
+
+
+
+            //msgbox_alert.Content = message;
+            dialogTask = dialog.ShowAsync();
+            //await msgbox_alert.ShowAsync();
+            //msgbox.Commands.Clear();
+            //msgbox.Commands.Add(new UICommand { Label = "Yes", Id = 0 });
+            //msgbox.Commands.Add(new UICommand { Label = "No", Id = 1 });
+            //msgbox.Commands.Add(new UICommand { Label = "Cancel", Id = 2 });
+
+            //var res = await msgbox.ShowAsync();
+            ////res.Cancel();
+            ////res.Invoked.
+
+            //if ((int)res.Id == 0)
+            //{
+            //    MessageDialog msgbox2 = new MessageDialog("Hello to you too! :)", "User Response");
+            //    await msgbox2.ShowAsync();
+            //}
+
+            //if ((int)res.Id == 1)
+            //{
+            //    MessageDialog msgbox2 = new MessageDialog("Oh well, too bad! :(", "User Response");
+            //    await msgbox2.ShowAsync();
+            //}
+
+            //if ((int)res.Id == 2)
+            //{
+            //    MessageDialog msgbox2 = new MessageDialog("Nevermind then... :|", "User Response");
+            //    await msgbox2.ShowAsync();
+            //}
+
+        }
+
+
+        //private IAsyncOperation<IUICommand> dialogTask;
+        //private void test_message()
+        //{
+        //    MessageDialog dlg = new MessageDialog("This will close after 5 seconds");
+        //    try
+        //    {
+        //        dialogTask = dlg.ShowAsync();
+        //    }
+        //    catch (TaskCanceledException)
+        //    {
+        //        //this was cancelled
+        //    }
+
+        //    DispatcherTimer dt = new DispatcherTimer();
+        //    dt.Interval = TimeSpan.FromSeconds(5);
+        //    dt.Tick += dt_Tick;
+        //    dt.Start();
+        //}
+
+        //void dt_Tick(object sender, object e)
+        //{
+        //    (sender as DispatcherTimer).Stop();
+        //    dialogTask.Cancel();
+        //}
         //*********************************************************************************************
         //end of class
     }
 
+
+    public class SampleDataModel
+    {
+        public string Title { get; private set; }
+        public string ImagePath { get; private set; }
+        public bool IsNew { get; private set; }
+        public bool IsFlagged { get; private set; }
+
+        public SampleDataModel(string title, string imagePath, bool isNew = false, bool isFlagged = false)
+        {
+            this.Title = title;
+            this.ImagePath = imagePath;
+            this.IsNew = isNew;
+            this.IsFlagged = isFlagged;
+        }
+
+        public override string ToString()
+        {
+            return this.Title;
+        }
+
+        static public ObservableCollection<SampleDataModel> GetSampleData()
+        {
+            var MyCollection = new ObservableCollection<SampleDataModel>();
+            MyCollection.Add(new SampleDataModel("Cliff", "Assets/cliff.jpg"));
+            MyCollection.Add(new SampleDataModel("Grapes", "ms-appx:///Assets/grapes.jpg"));
+            MyCollection.Add(new SampleDataModel("Rainier", "ms-appx:///Assets/Rainier.jpg", true));
+            MyCollection.Add(new SampleDataModel("Sunset", "ms-appx:///Assets/Sunset.jpg", true, true));
+            MyCollection.Add(new SampleDataModel("Treetops", "ms-appx:///Assets/Treetops.jpg", true));
+            MyCollection.Add(new SampleDataModel("Valley", "ms-appx:///Assets/Valley.jpg", false, true));
+            return MyCollection;
+        }
+    }
     //////////////////////////////////////////////////////////////////////////////////////////
     public enum NotifyType//for show mesage while not find when press search button
     {
