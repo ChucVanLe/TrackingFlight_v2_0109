@@ -135,7 +135,7 @@ namespace TrackingFlight_v2_0109
         DataFromSensor Data = new DataFromSensor();
         //contain all position which flighr across there
         List<BasicGeoposition> positions = new List<BasicGeoposition>();
-
+        
         //end of global variable
         public MainPage()
         {
@@ -451,7 +451,7 @@ namespace TrackingFlight_v2_0109
             {
                 string aqs = SerialDevice.GetDeviceSelector();
                 var dis = await DeviceInformation.FindAllAsync(aqs);
-
+                
                 //status.Text = "Select a device and connect";
                 for (int i = 0; i < dis.Count; i++)
                 {
@@ -498,11 +498,11 @@ namespace TrackingFlight_v2_0109
                 // Configure serial settings
                 serialPort.WriteTimeout = TimeSpan.FromMilliseconds(1);
                 serialPort.ReadTimeout = TimeSpan.FromMilliseconds(1);
-                serialPort.BaudRate = 57600;
+                serialPort.BaudRate = 9600;
                 serialPort.Parity = SerialParity.None;
                 serialPort.StopBits = SerialStopBitCount.One;
                 serialPort.DataBits = 8;
-                serialPort.Handshake = SerialHandshake.None;
+                //serialPort.Handshake = SerialHandshake.None;
 
                 //Connect is successfull
                 bConnectOk = true;
@@ -516,7 +516,7 @@ namespace TrackingFlight_v2_0109
                 bt_DisConnect.IsEnabled = true;
                 Listen();
             }
-            catch
+            catch(Exception ex)
             {
                 //status.Text = ex.Message;
                 bt_Connect.IsEnabled = true;
