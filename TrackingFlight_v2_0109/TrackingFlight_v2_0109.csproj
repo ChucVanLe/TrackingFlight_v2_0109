@@ -20,7 +20,8 @@
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
-    <AppxPackageDir>\\HAO\chuc\</AppxPackageDir>
+    <AppxPackageDir>D:\</AppxPackageDir>
+    <PackageCertificateThumbprint>7503ED23C5E3EE8F518778F1721A854A9031E5BD</PackageCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>

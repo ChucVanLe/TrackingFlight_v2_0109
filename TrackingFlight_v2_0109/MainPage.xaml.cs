@@ -498,7 +498,7 @@ namespace TrackingFlight_v2_0109
                 // Configure serial settings
                 serialPort.WriteTimeout = TimeSpan.FromMilliseconds(1);
                 serialPort.ReadTimeout = TimeSpan.FromMilliseconds(1);
-                serialPort.BaudRate = 9600;
+                serialPort.BaudRate = Convert.ToUInt32(tb_BaudRate.Text);
                 serialPort.Parity = SerialParity.None;
                 serialPort.StopBits = SerialStopBitCount.One;
                 serialPort.DataBits = 8;
@@ -518,7 +518,7 @@ namespace TrackingFlight_v2_0109
             }
             catch(Exception ex)
             {
-                //status.Text = ex.Message;
+                show_alert(ex.Message);
                 bt_Connect.IsEnabled = true;
                 bt_List_Com.IsEnabled = true;
             }
@@ -1244,7 +1244,7 @@ namespace TrackingFlight_v2_0109
                         ShowSpeed_Alt_Position();
 
                         if(Data.Speed != null)
-                            if((Convert.ToDouble(Data.Speed) < 100) && (Convert.ToDouble(Data.Pitch) > 100))
+                            if((Convert.ToDouble(Data.Speed) < 100) && (Convert.ToDouble(Data.Pitch) > 500))
                             {
                                 try
                                 {
@@ -4400,6 +4400,8 @@ namespace TrackingFlight_v2_0109
         private void bt_open_file_click(object sender, RoutedEventArgs e)
         {
             ConnectDevices.Opacity = 0;// don't dispay ConnectDevices
+            tblock_BaudRate.Opacity = 0;// don't dispay ConnectDevices
+            tb_BaudRate.Opacity = 0;// don't dispay ConnectDevices
             myMap.Children.Clear();
             myMap.MapElements.Clear();
             positions.Clear();
@@ -4460,6 +4462,8 @@ namespace TrackingFlight_v2_0109
         private void bt_list_com_click(object sender, RoutedEventArgs e)
         {
             ConnectDevices.Opacity = 1;//dispay ConnectDevices
+            tb_BaudRate.Opacity = 1;//dispay ConnectDevices
+            tblock_BaudRate.Opacity = 1;//dispay ConnectDevices
         }
 
 
@@ -4507,6 +4511,8 @@ namespace TrackingFlight_v2_0109
         {
             Connect_To_Com();
             ConnectDevices.Opacity = 0;// don't dispay ConnectDevices
+            tb_BaudRate.Opacity = 0;//dispay ConnectDevices
+            tblock_BaudRate.Opacity = 0;//dispay ConnectDevices
             //remove tblock_Start_Timer, tblock_End_Timer, slider_AdjTime when connect Com
             BackgroundDisplay.Children.Remove(tblock_Start_Timer);
             BackgroundDisplay.Children.Remove(tblock_End_Timer);
@@ -4526,6 +4532,8 @@ namespace TrackingFlight_v2_0109
         {
             DisConnect_To_Com();
             ConnectDevices.Opacity = 1;//dispay ConnectDevices
+            tb_BaudRate.Opacity = 1;//dispay ConnectDevices
+            tblock_BaudRate.Opacity = 1;//dispay ConnectDevices
         }
 
         private void slider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
@@ -5739,6 +5747,8 @@ namespace TrackingFlight_v2_0109
         private void bt_open_file_to_draw_path_click(object sender, RoutedEventArgs e)
         {
             ConnectDevices.Opacity = 0;// don't dispay ConnectDevices
+            tb_BaudRate.Opacity = 0;//dispay ConnectDevices
+            tblock_BaudRate.Opacity = 0;//dispay ConnectDevices
             myMap.Children.Clear();
             myMap.MapElements.Clear();
             positions.Clear();
@@ -5765,6 +5775,30 @@ namespace TrackingFlight_v2_0109
         }
 
         int number_of_tap = 0;
+
+        private void bt_loadTrajectory_click(object sender, RoutedEventArgs e)
+        {
+            ConnectDevices.Opacity = 0;// don't dispay ConnectDevices
+            tb_BaudRate.Opacity = 0;//dispay ConnectDevices
+            tblock_BaudRate.Opacity = 0;//dispay ConnectDevices
+            myMap.Children.Clear();
+            myMap.MapElements.Clear();
+            positions.Clear();
+            positions = new List<BasicGeoposition>();
+            //ReadInfOfFile();
+            ReadInfOfFileToDrawPath();
+            //add tblock_Start_Timer, tblock_End_Timer, slider_AdjTime
+            BackgroundDisplay.Children.Remove(tblock_Start_Timer);
+            BackgroundDisplay.Children.Remove(tblock_End_Timer);
+            BackgroundDisplay.Children.Remove(slider_AdjTime);
+            BackgroundDisplay.Children.Add(tblock_Start_Timer);
+            BackgroundDisplay.Children.Add(tblock_End_Timer);
+            BackgroundDisplay.Children.Add(slider_AdjTime);
+            //Enable play, Pause, Speed Lisbox when Open_File is selected
+            bt_Play.IsEnabled = true;
+            bt_Pause.IsEnabled = true;
+            bt_Speed.IsEnabled = true;
+        }
 
         List<BasicGeoposition> positions_path_tap_on_map = new List<BasicGeoposition>();
         /// <summary>

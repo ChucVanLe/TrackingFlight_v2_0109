@@ -182,8 +182,10 @@
 
         <!-- Choose read com or read file button-->
 
-        <!--Add menu bar-->
 
+        <TextBlock x:Name="tblock_BaudRate" HorizontalAlignment="Left" Opacity="0" FontSize="20" Foreground="Red" Margin="628,240,0,0" TextWrapping="Wrap" Text="BaudRate: " VerticalAlignment="Top" Height="30" Width="80"/>
+        <!--Input BaudRate-->
+        <TextBox x:Name="tb_BaudRate" HorizontalAlignment="Left" Opacity="0" Margin="708,240,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="30" Width="231" Background="Aqua"/>
 
         <!--list of com-->
         <!--UART-->
@@ -212,8 +214,9 @@
                         <MenuFlyoutItem Text="Increase" Click="bt_speed_inc_click"/>
                         <MenuFlyoutItem Text="Decrease" Click="bt_speed_dec_click"/>
                     </MenuFlyoutSubItem>
+                    <MenuFlyoutItem x:Name="bt_LoadTrajectory" Text = "Load Trajectory" Click="bt_loadTrajectory_click"/>
                     <!--<MenuFlyoutItem Text="Open .txt file" Click="bt_open_file_click"/>-->
-                    <MenuFlyoutSubItem Text="Open file">
+                    <MenuFlyoutSubItem Text="Load Flight Data">
                         <MenuFlyoutItem Text="Nomal" Click="bt_open_file_click"/>
                         <MenuFlyoutItem Text="Draw Path" Click="bt_open_file_to_draw_path_click"/>
                     </MenuFlyoutSubItem>
@@ -229,6 +232,7 @@
                     </MenuFlyoutSubItem>
                     <MenuFlyoutItem x:Name="bt_List_Com" Click="bt_list_com_click" Text="List COM">
                     </MenuFlyoutItem>
+
                     <MenuFlyoutSubItem Text="Device">
                         <MenuFlyoutItem x:Name="bt_Connect" Text="Connect" Click="bt_device_connect_click"/>
                         <MenuFlyoutItem x:Name="bt_DisConnect" IsEnabled="True" Text="DisConnect" Click="bt_device_disconnect_click"/>
