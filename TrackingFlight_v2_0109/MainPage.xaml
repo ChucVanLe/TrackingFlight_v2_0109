@@ -22,8 +22,8 @@
         </DataTemplate>
 
         <MenuFlyout x:Key="SampleContextMenu">
-            <MenuFlyoutItem Text="Draw" Tag="&#xE899;" Style="{StaticResource MenuFlyoutItemIconTemplate}"  />
-            <MenuFlyoutItem Text="Done" Tag="&#xE8FB;" Style="{StaticResource MenuFlyoutItemIconTemplate}"  />
+            <MenuFlyoutItem Text="Draw" Tag="&#xE899;" Style="{StaticResource MenuFlyoutItemIconTemplate}"  Click="bt_draw_polygon"/>
+            <MenuFlyoutItem Text="Done" Tag="&#xE8FB;" Style="{StaticResource MenuFlyoutItemIconTemplate}"  Click="bt_done_polygon"/>
             <MenuFlyoutItem Text="Clear" Tag="&#xE894;" Style="{StaticResource MenuFlyoutItemIconTemplate}" Click="bt_clear_polygon"/>
             <MenuFlyoutItem Text="Save" Tag="&#xE74E;" Style="{StaticResource MenuFlyoutItemIconTemplate}" />
 
@@ -123,7 +123,7 @@
         </Maps:MapControl>
 
         <!--<Slider x:Name="slider" Margin="679,159,1072,561" Height="100" ValueChanged="slider_ValueChanged" Maximum="1200" Minimum="0" />-->
-        <Slider x:Name="slider_test" Margin="579,316,0,0" Height="100" SmallChange="1" ValueChanged="slider_ValueChanged" Maximum="240" />
+        <!--<Slider x:Name="slider_test" Margin="579,316,0,0" Height="100" SmallChange="1" ValueChanged="slider_ValueChanged" Maximum="240" />-->
         <!--<Slider x:Name="slider_test1" Margin="679,480,0,0" Height="100" SmallChange="1" ValueChanged="slider_ValueChanged" Maximum="100" />-->
         <!--
         <Button x:Name="Map3D" Click="Map3D_Click" HorizontalAlignment="Left" Content="Map3D"
@@ -198,9 +198,13 @@
             </ListBox.ItemTemplate>
         </ListBox>
 
-        
 
-        
+        <!--<ListBox x:Name="ViewChooser" />-->
+       
+        <ListBox x:Name="SizePreferenceChooser"  />
+
+        <ListBox x:Name="AnchorSizePreferenceChooser" />
+
         <!--*******************************************************************************-->
         <Button x:Name="ShowButton" ToolTipService.ToolTip="Menu" Background="YellowGreen" VerticalAlignment="Top" Foreground="{ThemeResource ApplicationForegroundThemeBrush}" Margin="449,10,0,0">
             <Button.Content>
@@ -220,32 +224,32 @@
                         <MenuFlyoutItem Text="Nomal" Click="bt_open_file_click"/>
                         <MenuFlyoutItem Text="Draw Path" Click="bt_open_file_to_draw_path_click"/>
                     </MenuFlyoutSubItem>
-                    <MenuFlyoutSubItem Text="Screen">
-                        <MenuFlyoutItem Text="One Screen" Click="bt_one_sceen_click"/>
-                        <MenuFlyoutItem Text="Two Screen" Click="bt_two_sceen_click"/>
-                    </MenuFlyoutSubItem>
                     <MenuFlyoutItem Text="Get Position" Click="bt_get_position_click"/>
-                    <MenuFlyoutItem Text="Zoom Nomal" Click="bt_zoom_nomal_click"/>
-                    <MenuFlyoutSubItem Text="AutoZoom">
-                        <MenuFlyoutItem Text="On" Click="bt_autoZoom_on_click"/>
+                    <MenuFlyoutSubItem Text="Zoom">
+                        <MenuFlyoutItem Text="Nomal" Click="bt_zoom_nomal_click"/>
+                        <MenuFlyoutItem Text="Auto" Click="bt_autoZoom_on_click"/>
                         <MenuFlyoutItem Text="Off" Click="bt_autoZoom_off_click"/>
                     </MenuFlyoutSubItem>
                     <MenuFlyoutItem x:Name="bt_List_Com" Click="bt_list_com_click" Text="List COM">
                     </MenuFlyoutItem>
-
+                    <MenuFlyoutItem x:Name="bt_AddDevice" Text = "Add Device" Click="bt_AddDevice_Click"/>
                     <MenuFlyoutSubItem Text="Device">
                         <MenuFlyoutItem x:Name="bt_Connect" Text="Connect" Click="bt_device_connect_click"/>
                         <MenuFlyoutItem x:Name="bt_DisConnect" IsEnabled="True" Text="DisConnect" Click="bt_device_disconnect_click"/>
                     </MenuFlyoutSubItem>
                     <!--Edit time sample to draw path of flight-->
-                    <MenuFlyoutSubItem Text="Time Sample">
-                        <MenuFlyoutItem x:Name="bt_Max" Text="Max" Click="bt_time_sample_max"/>
+                    <MenuFlyoutSubItem Text="Sample Time">
+                        <MenuFlyoutItem x:Name="bt_Max" Text="0.2s" Click="bt_time_sample_max"/>
                         <MenuFlyoutItem x:Name="bt_1s" Text="1s" Click="bt_time_sample_1s"/>
                         <MenuFlyoutItem x:Name="bt_5s" Text="5s" Click="bt_time_sample_5s"/>
                         <MenuFlyoutItem x:Name="bt_10" Text="10s" Click="bt_time_sample_10s"/>
                         <MenuFlyoutItem x:Name="bt_20s" Text="20s" Click="bt_time_sample_20"/>
                         <MenuFlyoutItem x:Name="bt_30s" Text="30s" Click="bt_time_sample_30s"/>
 
+                    </MenuFlyoutSubItem>
+                    <MenuFlyoutSubItem Text="Engine Demo">
+                        <MenuFlyoutItem Text="On" Click="bt_EngineDome_on_click"/>
+                        <MenuFlyoutItem Text="Off" Click="bt_EngineDome_off_click"/>
                     </MenuFlyoutSubItem>
                     <MenuFlyoutItem x:Name="bt_Exit" Text = "Exit" Click="bt_exit_Click"/>
                 </MenuFlyout>

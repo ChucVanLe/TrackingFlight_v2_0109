@@ -76,7 +76,13 @@ using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml.Shapes;
 using WinRTXamlToolkit.Controls;
 
-//************************************************
+//********************New Window****************************
+using SecondaryViewsHelpers;
+using System;
+using System.Collections.Generic;
+using Windows.ApplicationModel.Core;
+using Windows.UI.Core;
+
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -97,6 +103,12 @@ namespace TrackingFlight_v2_0109
         public string Roll { get; set; }
         public string Pitch { get; set; }
         public string Yaw { get; set; }
+    }
+
+    public sealed class SizePreferenceString
+    {
+        public string Title { get; set; }
+        public ViewSizePreference Preference { get; set; }
     }
 
     /// <summary>
@@ -145,6 +157,20 @@ namespace TrackingFlight_v2_0109
 
             //show_alert("H!");
             //test_message();
+            // "UseNone" is not a valid choice for the incoming view, so only include
+            // it in the anchor size preference chooser
+            //var anchorSizeChoices = GenerateSizePreferenceBinding();
+            //anchorSizeChoices.Add(new SizePreferenceString() { Preference = ViewSizePreference.UseNone, Title = "UseNone" });
+            //AnchorSizePreferenceChooser.ItemsSource = anchorSizeChoices;
+            //AnchorSizePreferenceChooser.SelectedIndex = 0;
+
+            //SizePreferenceChooser.ItemsSource = GenerateSizePreferenceBinding();
+            //SizePreferenceChooser.SelectedIndex = 0;
+
+            // This collection is being bound to the current thread.
+            // So, make sure you only update the collection and items
+            // contained in it from this thread.
+            ViewChooser.ItemsSource = ((App)App.Current).SecondaryViews;
 
         }
         //*****************************************************************
@@ -208,7 +234,7 @@ namespace TrackingFlight_v2_0109
             //InitTimerReadData(2);
             //Set up timer Show Data, period = 500ms
 
-            //InitTimerShowData(1000);//Timer này để hiển thị data lên Compass, Speed, Altitude, Roll And Pitch Angle
+            //InitTimerShowEngineDome(1000);//Timer này để hiển thị data lên Compass, Speed, Altitude, Roll And Pitch Angle
 
             //Dữ liệu cập nhật liên tục nhưng chỉ hiện thị sau mỗi 0,5s
             //Vì gia tốc thay đổi nhanh nên ta cần hiển thị sau mỗi 0.1s
@@ -285,6 +311,7 @@ namespace TrackingFlight_v2_0109
             //NotifyUser(status, NotifyType.StatusMessage);
 
             //draw path when user tap on maps
+            if (enable_draw_polygon_on_map)
             Draw_Polygon_When_Tap_On_Map(tappedGeoPosition.Latitude, tappedGeoPosition.Longitude, tappedGeoPosition.Altitude);
         }
 
@@ -357,11 +384,11 @@ namespace TrackingFlight_v2_0109
         /// <summary>
         /// Timer to Show data to Compass, Alt, Speed, Roll, Pitch,.. 
         /// </summary>
-        private void InitTimerShowData(double dPeriod)
+        private void InitTimerShowEngineDome(double dPeriod)
         {
             // Start the polling timer.
             timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(dPeriod) };
-            timer.Tick += TimerShowData;
+            timer.Tick += TimerShowEngineDome;
             timer.Start();
 
         }
@@ -403,7 +430,7 @@ namespace TrackingFlight_v2_0109
             //Image full
             //Da can chinh 1/3
             AirSpeed_Image_full_Setup(100.1, 150 - 32 + i16EditPosition, 80 + 125);//ok
-            Draw_Airspeed_full_optimize(0, 150 - 32 + i16EditPosition, 205);//ok500, 120
+            Draw_Airspeed_full_optimize(900, 150 - 32 + i16EditPosition, 205);//ok500, 120
                                                                             //Speed_Image_Setup(100, 150, 100);
                                                                             //Da can chinh 1/3
             PitchAndRoll_Setup(0, 0, 350 + i16EditPosition * 11 / 6, 210, 140, 50);//ok_21092016
@@ -430,7 +457,7 @@ namespace TrackingFlight_v2_0109
 
             ///////////////////////////////////////////////////////////////////
             //Add needle
-            AddNeedle(screenWidth - 35, screenHeight - 70);//screenWidth
+            AddNeedle(35, 20);//screenWidth
 
         }
         //*************End Of Class inside class set up****************************************
@@ -1441,9 +1468,16 @@ namespace TrackingFlight_v2_0109
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        public void TimerShowData(object sender, object e)
+        public void TimerShowEngineDome(object sender, object e)
         {
-            ShowSpeed_Alt_Position();
+            //ShowSpeed_Alt_Position();
+            Random randomNumber_demoEngine = new Random();
+            rotate_needle_fuel(randomNumber_demoEngine.Next(0, 240));
+            rotate_needle_speed(randomNumber_demoEngine.Next(0, 240));
+            rotate_needle_speed1(randomNumber_demoEngine.Next(0, 240));
+            rotate_needle_speed2(randomNumber_demoEngine.Next(0, 240));
+            //myMap.Heading = randomNumber_demoEngine.Next(0, 240);
+            rotate_needle_ang_to_des(randomNumber_demoEngine.Next(0, 240));
         }
 
         double angle_position_of_flight_to_des;
@@ -1645,9 +1679,10 @@ namespace TrackingFlight_v2_0109
             DrawComPass_speed_motor(85, screenHeight - 290, 65, 0);
             add_needle_of_speed(85, screenHeight - 290, 65);
             rotate_needle_speed(0);
-            DrawComPass_speed_motor(85, screenHeight - 130, 65, 0);
+            //DrawComPass_speed_motor(85, screenHeight - 130, 65, 0);
             add_needle_of_speed1(85, screenHeight - 130, 65);
-            rotate_needle_speed1(0);
+            BackgroundDisplay.Children.Remove(im_needle_speed1);
+            //rotate_needle_speed1(0);
             //DrawComPass_speed_motor(400, screenHeight - 130, 65, 0);
             //add_needle_of_speed2(400, screenHeight - 130, 65);
             //rotate_needle_speed2(0);
@@ -1656,8 +1691,8 @@ namespace TrackingFlight_v2_0109
             //DrawComPass_angle_to_des(240, screenHeight - 130, 65, 0);
             //add_needle_ang_to_des(240, screenHeight - 130, 65);
             //rotate_needle_ang_to_des(30);
-            DrawComPass_angle_to_des(400, screenHeight - 130, 65, 0);
-            add_needle_ang_to_des(400, screenHeight - 130, 65);
+            DrawComPass_angle_to_des(240, screenHeight - 290, 65, 0);
+            add_needle_ang_to_des(240, screenHeight - 290, 65);
             rotate_needle_ang_to_des(-90);
             //add 4 button
             button1.Margin = new Windows.UI.Xaml.Thickness(20, screenHeight - 46, 00, 00);
@@ -1673,9 +1708,9 @@ namespace TrackingFlight_v2_0109
             BackgroundDisplay.Children.Remove(button4);
             BackgroundDisplay.Children.Add(button4);
             //edit position slider
-            slider_test.Margin = new Windows.UI.Xaml.Thickness(579, screenHeight - 50, 00, 00);
-            BackgroundDisplay.Children.Remove(slider_test);
-            BackgroundDisplay.Children.Add(slider_test);
+            //slider_test.Margin = new Windows.UI.Xaml.Thickness(579, screenHeight - 50, 00, 00);
+            //BackgroundDisplay.Children.Remove(slider_test);
+            //BackgroundDisplay.Children.Add(slider_test);
         }
         //--------------------------------------------------------------------------
 
@@ -3512,6 +3547,70 @@ namespace TrackingFlight_v2_0109
 
                 //myMap.MapElements.Remove(mapPolyline);
                 myMap.MapElements.Add(lineToRmove);
+                SetMapPolyline(positions);
+            }
+            catch { }
+
+        }
+
+        /// <summary>
+        /// draw green line --- trajectory
+        /// </summary>
+        async void DrawTrajectory()
+        {
+
+            try
+            {
+                openPicker = new Windows.Storage.Pickers.FileOpenPicker();
+                openPicker.ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail;
+                openPicker.SuggestedStartLocation =
+                    Windows.Storage.Pickers.PickerLocationId.PicturesLibrary;
+
+                openPicker.FileTypeFilter.Add(".txt");
+
+                Windows.Storage.StorageFile file = await openPicker.PickSingleFileAsync();
+
+                Stream stream = (await file.OpenReadAsync()).AsStreamForRead();
+
+                streamReader = new StreamReader(stream);
+                setupReadfile = true;
+                //Int32 index = 0;
+                Data.Time = null;
+                while (null == Data.Time)
+
+                {
+                    strDataFromSerialPort = streamReader.ReadLine();
+
+                    //processDataToGetInf();
+                    processToDrawTrajactory();
+                }
+                sStartTime = Data.Time;
+ 
+                Data.Time = sStartTime;
+                streamReader.BaseStream.Seek(0, SeekOrigin.Begin);
+                streamReader = new StreamReader(stream);
+                editTimeWhenChangeslider();
+
+                //Vẽ quỹ đạo
+                positions.Clear();
+                while (streamReader.Peek() >= 0)
+                {
+                    strDataFromSerialPort = streamReader.ReadLine();
+
+                    //processDataToGetInf();
+                    processToDrawTrajactory();
+                }
+                MapPolyline lineToRmove = new Windows.UI.Xaml.Controls.Maps.MapPolyline();
+
+                lineToRmove.Path = new Geopath(positions);
+
+                lineToRmove.StrokeColor = Colors.Green;
+                lineToRmove.StrokeThickness = 2;
+                lineToRmove.StrokeDashed = true;//nét liền
+
+                //myMap.MapElements.Remove(mapPolyline);
+                myMap.MapElements.Add(lineToRmove);
+                SetMapPolyline(positions);
             }
             catch { }
 
@@ -3850,11 +3949,11 @@ namespace TrackingFlight_v2_0109
             double top = -(dAirSpeed - 2000);
             //BackgroundDisplay.Children.Remove(imgAuto_airSpeed);
             //Edit size of image
-            imAlttitudeFull.Height = 4560;
+            imAlttitudeFull.Height = 5191;
             //muốn biết kích thước thì dùng paint, kích thước trong paint ;
             //size 85 x 601;
             BackgroundDisplay.Children.Remove(imAlttitudeFull);
-            imAlttitudeFull.Source = new BitmapImage(new Uri("ms-appx:///Assets/AltitudeFull.png"));
+            imAlttitudeFull.Source = new BitmapImage(new Uri("ms-appx:///Assets/AltitudeFull_v2.png"));
             imAlttitudeFull.Width = 88;//Ảnh này hình vuông nên Width = Height = min(Height, Width)
 
             //imgAuto_airSpeed.RenderTransform
@@ -3948,17 +4047,17 @@ namespace TrackingFlight_v2_0109
             t_cut = -dAlttitude * 0.4167;
             top = -dAlttitude * 0.4167;
             //Edit size of image
-            imAlttitudeFull.Height = 4560;
+            imAlttitudeFull.Height = 5191;//truoc 4560
 
             imAlttitudeFull.Width = 88;//Ảnh này hình vuông nên Width = Height = min(Height, Width)
 
             imAlttitudeFull.Clip = new RectangleGeometry()
             {
-                Rect = new Rect(0, 4250 + t_cut, 88, 264)//các trên trung tâm y 100, dưới 100
+                Rect = new Rect(0, 4881 + t_cut, 88, 264)//các trên trung tâm y 100, dưới 100
 
             };
 
-            imAlttitudeFull.Margin = new Windows.UI.Xaml.Thickness(xCenter - 45, yCenter - 4262 - top, 0, 0);
+            imAlttitudeFull.Margin = new Windows.UI.Xaml.Thickness(xCenter - 45, yCenter - 4893 - top, 0, 0);
 
             Alttitude_Draw_String_optimize(dAlttitude);
 
@@ -4205,8 +4304,8 @@ namespace TrackingFlight_v2_0109
             //Image Img_Needle = new Image();
             BackgroundDisplay.Children.Remove(Img_Needle);
             //Edit size of image
-            Img_Needle.Height = 40;
-            Img_Needle.Width = 40;
+            Img_Needle.Height = 60;
+            Img_Needle.Width = 60;
 
             //Img_Needle.RenderTransform
             Img_Needle.Opacity = 1;
@@ -4265,9 +4364,9 @@ namespace TrackingFlight_v2_0109
             {
 
                 Angle = 360 - dHeading,
-                CenterX = 20,
+                CenterX = 30,
                 //CenterX = 62, //The prop name maybe mistyped 
-                CenterY = 20
+                CenterY = 30
             };
 
             BackgroundDisplay.Children.Add(Img_Needle);
@@ -4402,8 +4501,8 @@ namespace TrackingFlight_v2_0109
             ConnectDevices.Opacity = 0;// don't dispay ConnectDevices
             tblock_BaudRate.Opacity = 0;// don't dispay ConnectDevices
             tb_BaudRate.Opacity = 0;// don't dispay ConnectDevices
-            myMap.Children.Clear();
-            myMap.MapElements.Clear();
+            //myMap.Children.Clear();
+            //myMap.MapElements.Clear();
             positions.Clear();
             positions = new List<BasicGeoposition>();
             ReadInfOfFile();
@@ -4536,14 +4635,15 @@ namespace TrackingFlight_v2_0109
             tblock_BaudRate.Opacity = 1;//dispay ConnectDevices
         }
 
+        //double randomNumber_demoEngine.Next(0, 240) = 0;
         private void slider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
         {
-            rotate_needle_fuel(slider_test.Value);
-            rotate_needle_speed(slider_test.Value);
-            rotate_needle_speed1(slider_test.Value);
-            rotate_needle_speed2(slider_test.Value);
-            //myMap.Heading = slider_test.Value;
-            rotate_needle_ang_to_des(slider_test.Value);
+            //rotate_needle_fuel(randomNumber_demoEngine.Next(0, 240));
+            //rotate_needle_speed(randomNumber_demoEngine.Next(0, 240));
+            //rotate_needle_speed1(randomNumber_demoEngine.Next(0, 240));
+            //rotate_needle_speed2(randomNumber_demoEngine.Next(0, 240));
+            ////myMap.Heading = randomNumber_demoEngine.Next(0, 240);
+            //rotate_needle_ang_to_des(randomNumber_demoEngine.Next(0, 240));
         }
 
 
@@ -5736,6 +5836,7 @@ namespace TrackingFlight_v2_0109
         Windows.UI.Xaml.Controls.Maps.MapPolygon Polygon_When_User_Tap = new Windows.UI.Xaml.Controls.Maps.MapPolygon();
         double old_lat_tap_on_map = 0, old_lon_tap_on_map;
 
+        bool enable_draw_polygon_on_map = true;
         private void bt_clear_polygon(object sender, RoutedEventArgs e)
         {
             number_of_tap = 0;
@@ -5749,8 +5850,8 @@ namespace TrackingFlight_v2_0109
             ConnectDevices.Opacity = 0;// don't dispay ConnectDevices
             tb_BaudRate.Opacity = 0;//dispay ConnectDevices
             tblock_BaudRate.Opacity = 0;//dispay ConnectDevices
-            myMap.Children.Clear();
-            myMap.MapElements.Clear();
+            //myMap.Children.Clear();
+            //myMap.MapElements.Clear();
             positions.Clear();
             positions = new List<BasicGeoposition>();
             //ReadInfOfFile();
@@ -5785,19 +5886,105 @@ namespace TrackingFlight_v2_0109
             myMap.MapElements.Clear();
             positions.Clear();
             positions = new List<BasicGeoposition>();
-            //ReadInfOfFile();
-            ReadInfOfFileToDrawPath();
-            //add tblock_Start_Timer, tblock_End_Timer, slider_AdjTime
-            BackgroundDisplay.Children.Remove(tblock_Start_Timer);
-            BackgroundDisplay.Children.Remove(tblock_End_Timer);
-            BackgroundDisplay.Children.Remove(slider_AdjTime);
-            BackgroundDisplay.Children.Add(tblock_Start_Timer);
-            BackgroundDisplay.Children.Add(tblock_End_Timer);
-            BackgroundDisplay.Children.Add(slider_AdjTime);
-            //Enable play, Pause, Speed Lisbox when Open_File is selected
-            bt_Play.IsEnabled = true;
-            bt_Pause.IsEnabled = true;
-            bt_Speed.IsEnabled = true;
+
+            DrawTrajectory();
+            
+        }
+
+        private void bt_EngineDome_on_click(object sender, RoutedEventArgs e)
+        {
+            InitTimerShowEngineDome(500);
+        }
+
+        private void bt_EngineDome_off_click(object sender, RoutedEventArgs e)
+        {
+            timer.Stop();
+        }
+
+        private void bt_draw_polygon(object sender, RoutedEventArgs e)
+        {
+            enable_draw_polygon_on_map = true;
+        }
+
+        private void bt_done_polygon(object sender, RoutedEventArgs e)
+        {
+            enable_draw_polygon_on_map = false;
+        }
+
+        ListBox ViewChooser = new ListBox();
+        private async void bt_AddDevice_Click(object sender, RoutedEventArgs e)
+        {
+
+            // Set up the secondary view, but don't show it yet
+            ViewLifetimeControl viewControl = null;
+            await CoreApplication.CreateNewView().Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                // This object is used to keep track of the views and important
+                // details about the contents of those views across threads
+                // In your app, you would probably want to track information
+                // like the open document or page inside that window
+                viewControl = ViewLifetimeControl.CreateForCurrentView();
+                viewControl.Title = "New window";
+                // Increment the ref count because we just created the view and we have a reference to it                
+                viewControl.StartViewInUse();
+
+                var frame = new Frame();
+                frame.Navigate(typeof(COMConfiguration), viewControl);
+                Window.Current.Content = frame;
+                // This is a change from 8.1: In order for the view to be displayed later it needs to be activated.
+                Window.Current.Activate();
+                ApplicationView.GetForCurrentView().Title = viewControl.Title;
+            });
+
+            // Be careful! This collection is bound to the current thread,
+            // so make sure to update it only from this thread
+            ((App)App.Current).SecondaryViews.Add(viewControl);
+            ///////////////////////////////////////////////////////
+            ViewChooser.SelectedIndex = 0;
+            var selectedView = ViewChooser.SelectedItem as ViewLifetimeControl;
+ 
+
+            if (selectedView != null)
+            {
+                try
+                {
+                    // Prevent the view from closing while
+                    // switching to it
+                    selectedView.StartViewInUse();
+
+                    // Show the previously created secondary view, using the size
+                    // preferences the user specified. In your app, you should
+                    // choose a size that's best for your scenario and code it,
+                    // instead of requiring the user to decide.
+                    var viewShown = await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
+                        selectedView.Id,
+                        ViewSizePreference.Default,
+                        ApplicationView.GetForCurrentView().Id,
+                        ViewSizePreference.Default);
+                    
+
+                    if (!viewShown)
+                    {
+                        // The window wasn't actually shown, so release the reference to it
+                        // This may trigger the window to be destroyed
+                        NotifyUser("The view was not shown. Make sure it has focus", NotifyType.ErrorMessage);
+                    }
+
+                    // Signal that switching has completed and let the view close
+                    selectedView.StopViewInUse();
+                }
+                catch (InvalidOperationException)
+                {
+                    // The view could be in the process of closing, and
+                    // this thread just hasn't updated. As part of being closed,
+                    // this thread will be informed to clean up its list of
+                    // views (see SecondaryViewPage.xaml.cs)
+                }
+            }
+            else
+            {
+                NotifyUser("Please choose a view to show, a size preference for each view", NotifyType.ErrorMessage);
+            }
         }
 
         List<BasicGeoposition> positions_path_tap_on_map = new List<BasicGeoposition>();
@@ -6068,9 +6255,5 @@ namespace TrackingFlight_v2_0109
         StatusMessage,
         ErrorMessage
     };
-    public class Scenario
-    {
-        public string Title { get; set; }
-        public Type ClassType { get; set; }
-    }
+
 }
